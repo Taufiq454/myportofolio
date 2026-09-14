@@ -15,30 +15,33 @@
         <div class="left-shape2"></div>
         <div class="right-shape"></div>
         <div class="container">
-            <a href="{% url 'main:show_main' %}" class="brand">Taufiq</a>
+            <a href="{% url 'main:show_main' %}" class="brand">{{ username }}</a>
             <nav>
                 <a href="{% url 'main:show_main' %}">Profile</a>
                 <!-- <a href="{% url 'skill_page' %}">Skill</a> -->
                 <!-- <a href="{% url 'project_page' %}">Project</a> -->
                 <a href="{% url 'main:show_education' %}">Education</a>
-                <a href="{% url 'interest_page' %}">Interest</a>
+                <a href="{% url 'main:show_interest' %}">Interest</a>
                 <a href="{% url 'main:show_experience' %}">Experience</a>
             </nav>
         </div>
     </header>
 
     <main>
-        <section class="interests" >
-            <!-- <div class="container hero-grid"> -->
-                <h1>My Interests</h1>
+        <section class="interest-section" id="interest">
+            <div class="container">
+                <p class="section-kicker-interest">Hal-hal yang saya sukai</p>
+                <h1>Interest</h1>
                 <div class="interest-grid">
-                    <div class="interest-card">Reading</div>
-                    <div class="interest-card">Music</div>
-                    <div class="interest-card">Fitness</div>
-                    <div class="interest-card">Martial Arts</div>
-                    <div class="interest-card">Gaming</div>
-                    <div class="interest-card">Rubik's Cube</div>
-                    <div class="interest-card">Hiking</div>
+                    {% for interest in interest_list %}
+                        <article class="interest-card">
+                            <h2>{{ interest.nama }}</h2>
+                        </article>
+                    {% empty %}
+                        <p class="empty-state">
+                            Belum menemukan ketertarik.
+                        </p>
+                    {% endfor %}
                 </div>
             <!-- </div> -->
         </section>

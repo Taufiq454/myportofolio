@@ -322,44 +322,6 @@ h1, .brand {
     color: #c49a5e;
 }
 
-/* ------------------------------------------------------------------------------------ */
-
-.interests{
-    max-width: 900px;
-    margin: 0 auto;
-    padding: 2rem 1rem;
-}
-
-.interests h1{
-    text-align: center;
-    font-size: 2rem;
-    font-weight: 700;
-    margin-bottom: 1.5rem;
-    color: #c49a5e;
-}
-
-.interest-grid{
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px,1fr));
-    gap: 1rem;
-}
-
-.interest-card{
-    background-color:#5e5c32;
-    color: #fff4e0;
-    border-radius: 8px;
-    padding: 1rem;
-    text-align: center;
-    font-weight: 600;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.interest-card:hover{
-    transform: translateY(-6px);
-    box-shadow: 0 8px 16px rgba(0,0,0,0.2);
-}
-
 /* ----------------------------------------------------------------------------------------- */
 
 .experience-section {
@@ -495,5 +457,57 @@ h1, .brand {
     margin-top: 1rem;
     font-size: 0.85rem;
     font-weight: 600;
+}
+
+/* ------------------------------------------------------------------------------------------------------------------------------------------------ */
+
+.interest-section {
+    padding: 4rem 0;
+    /* border-top: 1px solid var(--line); */
+}
+
+.interests-section h1{
+    text-align: center;
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    color: #c49a5e;
+}
+
+.section-kicker-interest{
+    color: var(--accent-dark);
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.interest-grid{
+    margin-top: 1.5rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1rem;
+
+}
+
+.interest-card{
+    background-color:#5e5c32;
+    color: #fff4e0;
+    border-radius: 8px;
+    padding: 1rem;
+    text-align: center;
+    font-weight: 600;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.interest-card:hover{
+    transform: translateY(-6px);
+    box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+}
+
+.empty-state {
+    font-size: 1.25rem;
+    color:#966e36;
 }
 

@@ -47,5 +47,12 @@ class Education(models.Model):
     @property
     def is_ongoing(self):
         return self.ended_at is None
+    
+class Interest(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    nama = models.CharField(max_length=100)
+    
+    def __str__(self):
+        return self.nama
 # Create your models here.
 
