@@ -41,6 +41,13 @@ def show_education(request):
     education_list = [education.object for education in educations]
     institution_query = request.GET.get("institution", "").strip()
     
+    if institution_query:
+        education_list = [
+            edu for edu in education_list
+            if institution_query.lower() in edu.degree.lower()
+            or institution_query.lower() in edu.institution.lower()
+        ]
+    
     context = {
         "username" : "Taufiq",
         "name": "Muhammad Taufiq Ramadhan",
@@ -84,3 +91,12 @@ def get_education_json(request):
     education_json = serializers.serialize("json", education)
     return HttpResponse(education_json, content_type="application/json")
 
+def delete_education(request, education_id):
+    education = get_object_or_404(Education, pk=education_id)
+
+    if request.method == "POST":
+        education.delete()
+        messages.success(request, "Riwayat pendidikan berhasil dihapus!")
+        return redirect("main:show_education")
+
+    return redirect("main:show_education")

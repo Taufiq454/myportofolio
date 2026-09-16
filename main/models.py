@@ -46,7 +46,7 @@ class Education(models.Model):
     
     @property
     def is_ongoing(self):
-        return self.ended_at is None
+        return self.end_year is None
     
 class Interest(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
