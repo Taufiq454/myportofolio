@@ -1,6 +1,6 @@
-from django.forms import ModelForm, NumberInput, TextInput, Textarea, URLInput
+from django.forms import DateTimeInput, ModelForm, NumberInput, Select, TextInput, Textarea, URLInput
 
-from main.models import Education
+from main.models import Education, Experience, Interest
 
 class EducationForm(ModelForm):
     class Meta:
@@ -52,6 +52,69 @@ class EducationForm(ModelForm):
                     "placeholder": "Sekarang / 2029",
                     "min": 1900,
                     "max": 2100,
+                }
+            ),
+        }
+        
+class ExperienceForm(ModelForm):
+    class Meta:
+        model = Experience
+        fields = [
+            "title",
+            "description",
+            "category",
+            "thumbnail",
+            "started_at",
+            "ended_at",
+        ]
+        
+        widgets = {
+            "tittle": TextInput(
+                attrs={
+                    "placeholder": "Pengalaman",
+                    "maxlenght": 255,
+                }
+            ),
+            "description": Textarea(
+                attrs={
+                    "placeholder": "Deskripsi",
+                    "rows": 3,
+                }
+            ),
+            "category": Select(
+                attrs={
+                    "class": "form-select",
+                    "style": "width:100%; padding:0.75rem; font-size:1rem;",
+                }
+            ),
+            "thumbnail": URLInput(
+                attrs={
+                    "placeholder": "https://.............",
+                }
+            ),
+            "started_at": DateTimeInput(
+                attrs={
+                    "type": "datetime-local"
+                }
+            ),
+            "ended_at": DateTimeInput(
+                attrs={
+                    "type": "datetime-local"
+                }
+            ),
+        }
+        
+class InterestForm(ModelForm):
+    class Meta:
+        model = Interest
+        fields = [
+            "nama"
+        ]
+        widgets = {
+            "nama": TextInput(
+                attrs={
+                    "placeholder": "Ketertarikan",
+                    "max_lenght": 255,
                 }
             ),
         }
