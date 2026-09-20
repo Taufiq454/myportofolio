@@ -39,3 +39,15 @@ Pada tugas ini saya hampir tidak menggunakan AI sama sekali karena tugasnya bena
 
 ### Tugas 2 tambahan penjelasan
 Saya juga tidak jadi menambahkan halaman project(menghapus), dan skill, dan memperbaiki tampilan untuk halaman yang tersisa.
+
+
+### Tugas 3
+
+1. Kitaa menggunakan ModelForm karena ModelForm dapat membuat form HTML berdasarkan model Django secara otomatis. Dengan begitu, kita tidak perlu menulis setiap input form secara manual dan validasi data juga dapat dilakukan berdasarkan aturan yang terdapat pada model. Hal ini membuat kode lebih singkat, konsisten, dan mudah dipelihara. Kita diwajibkan menggunakan CSRF adalah untuk mencegah penyerang aplikasi mengubah request yang awalnya ke server Django kita menjadi ke suatu API yang berbahaya dan mengirimkan data request kita ke mereka.
+
+2. JSON lebih banyak digunakan dalam pengembangan web modern karena formatnya lebih sederhana, ringkas, dan mudah dibaca dibandingkan XML. Selain itu JSON juga lebih ringan dan hampir semua bahasa pemrograman modern punya dukunga bawaan untuk JSON
+
+3. Saat fungsi view dipanggil dia akan mengambil data dari model, data tersebut masih berupa queryset dan belum berupa format JSON, maka dilakukanlah serialization data yang model tersebut diubah menjadi format JSON melalui proses serialization ini, barulah django mengirimkan hasil(response) dalam bentuk JsonResponse ke client.
+
+### AI Disclosure Tugas 3
+Saya menggunakan ChatGpt dan CoPilot untuk membantu mengetahui bagaimana implementasi method form experience pada bagian category dan DateTime juga bagaimana mengatur tampilan untuk category di menu add experience.

@@ -24,10 +24,20 @@ def show_main(request):
 
 
 def show_experience(request):
+    json_response = get_experience_json(request)
+    
+    experiences = serializers.deserialize(
+        "json",
+        json_response.content.decode("utf-8"),
+    )
+    experience_list = [experience.object for experience in experiences]
+    title_query = request.GET.get("title", "").strip()
+    
     context = {
         "username" : "Taufiq",
         "name": "Muhammad Taufiq Ramadhan",
-        "experience_list": Experience.objects.all(),
+        "experience_list": experience_list,
+        "title_query": title_query
     }
     return render(request, "experience.html", context)
 
@@ -58,10 +68,20 @@ def show_education(request):
     return render(request, "education.html", context)
 
 def show_interest(request):
+    json_response = get_interest_json(request)
+    
+    interests = serializers.deserialize(
+        "json",
+        json_response.content.decode("utf-8"),
+    )
+    interest_list = [interest.object for interest in interests]
+    nama_query = request.GET.get("nama", "").strip()
+    
     context = {
         "username" : "Taufiq",
         "name": "Muhammad Taufiq Ramadhan",
-        "interest_list": Interest.objects.all(),
+        "interest_list": interest_list,
+        "nama_query": nama_query
     }
     return render(request, "interest.html", context)
 

@@ -64,7 +64,7 @@ class ExperienceForm(ModelForm):
             "description",
             "category",
             "thumbnail",
-            "started_at",
+            # "started_at",
             "ended_at",
         ]
         
@@ -92,11 +92,11 @@ class ExperienceForm(ModelForm):
                     "placeholder": "https://.............",
                 }
             ),
-            "started_at": DateTimeInput(
-                attrs={
-                    "type": "datetime-local"
-                }
-            ),
+            # "started_at": DateTimeInput(
+            #     attrs={
+            #         "type": "datetime-local"
+            #     }
+            # ),
             "ended_at": DateTimeInput(
                 attrs={
                     "type": "datetime-local"
