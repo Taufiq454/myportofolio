@@ -50,4 +50,4 @@ Saya juga tidak jadi menambahkan halaman project(menghapus), dan skill, dan memp
 3. Saat fungsi view dipanggil dia akan mengambil data dari model, data tersebut masih berupa queryset dan belum berupa format JSON, maka dilakukanlah serialization data yang model tersebut diubah menjadi format JSON melalui proses serialization ini, barulah django mengirimkan hasil(response) dalam bentuk JsonResponse ke client.
 
 ### AI Disclosure Tugas 3
-Saya menggunakan ChatGpt dan CoPilot untuk membantu mengetahui bagaimana implementasi method form experience pada bagian category dan DateTime juga bagaimana mengatur tampilan untuk category di menu add experience.
+Saya menggunakan ChatGpt dan CoPilot untuk membantu mengetahui bagaimana implementasi method form experience pada bagian category dan DateTime juga bagaimana mengatur tampilan untuk category di menu add experience. Menggunakan AI untuk membantu membuat fungsi view untuk update dan menanyakan kesalahan pada educationForm
