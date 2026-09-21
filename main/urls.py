@@ -1,6 +1,6 @@
 from django.urls import path
 
-from main.views import create_education, create_experience,create_interest, delete_education, delete_experience, delete_interest, get_education_json, get_experience_json, get_interest_json, show_main, show_experience, show_education, show_interest
+from main.views import create_education, create_experience,create_interest, delete_education, delete_experience, delete_interest, get_education_json, get_experience_json, get_interest_json, show_main, show_experience, show_education, show_interest, update_education, update_experience, update_interest
 from . import views
 
 app_name = "main"
@@ -19,5 +19,8 @@ urlpatterns = [
     path("education/<uuid:education_id>/delete/", delete_education, name="delete_education"),
     path("experience/<uuid:experience_id>/delete/", delete_experience, name="delete_experience"),
     path("interest/<uuid:interest_id>/delete/", delete_interest, name="delete_interest"),
+    path("education/update/<uuid:education_id>/", update_education, name="update_education"),
+    path("experience/update/<uuid:experience_id>/", update_experience, name="update_experience"),
+    path("interest/update/<uuid:interest_id>/", update_interest, name="update_interest"),
     # path('', views.show_mahasiswa, name='show_mahasiswa'),
 ]

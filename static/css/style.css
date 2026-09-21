@@ -454,6 +454,24 @@ h1, .brand {
     font-weight: 600;
 }
 
+.button-experience-edit{
+    top: 8px;
+    position: relative;
+    border: 2px solid #ca5827;   /* kotak merah */
+    background-color: transparent; 
+    color: #ca5827;              /* teks merah */
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.button-experience-edit:hover {
+    background-color: #ca5827;   
+    color: #fff;  
+}
+
 .button-danger {
     border: 2px solid #ca5827;   /* kotak merah */
     background-color: transparent; 
@@ -693,6 +711,22 @@ h1, .brand {
     font-weight: 600;
 }
 
+.button-education-edit{
+    border: 2px solid #ca5827;   /* kotak merah */
+    background-color: transparent; 
+    color: #ca5827;              /* teks merah */
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.button-education-edit:hover {
+    background-color: #ca5827;   
+    color: #fff;  
+}
+
 .button-danger {
     border: 2px solid #ca5827;   /* kotak merah */
     background-color: transparent; 
@@ -914,6 +948,22 @@ h1, .brand {
     font-size: 0.70rem;
     font-weight: 600;
     padding: 0.3rem 0.6rem;
+}
+
+.button-interest-edit{
+    border: 2px solid #ca5827;   /* kotak merah */
+    background-color: transparent; 
+    color: #ca5827;              /* teks merah */
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.button-interest-edit:hover {
+    background-color: #ca5827;   
+    color: #fff;  
 }
 
 .button-danger {

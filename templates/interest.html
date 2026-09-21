@@ -32,6 +32,9 @@
                         <article class="interest-card">
                             <h2>{{ interest.nama }}</h2>
                             <div class="interest-card-actions">
+                                <a href="{% url 'main:update_interest' interest.id %}" class="button button-interest-edit">
+                                    Edit
+                                </a>
                                 {% include "components/interest_delete_modal.html" with interest=interest %}
                             </div>
                         </article>        

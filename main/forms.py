@@ -22,7 +22,7 @@ class EducationForm(ModelForm):
         }
 
         widgets = {
-            "title": TextInput(
+            "institution": TextInput(
                 attrs={
                     "placeholder": "Universitas Indonesia",
                     "maxlength": 255,

@@ -191,3 +191,57 @@ def delete_interest(request, interest_id):
     
     return redirect("main:show_interest")
 
+def update_education(request, education_id):
+    education = get_object_or_404(Education, pk=education_id)
+    form = EducationForm(request.POST or None, instance=education)
+
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        messages.success(request, "Riwayat pendidikan berhasil diperbarui!")
+        return redirect("main:show_education")
+
+    context = {
+        "username": "Taufiq",
+        "name": "Muhammad Taufiq Ramadhan",
+        "form": form,
+        "education": education,
+    }
+    return render(request, "education_update_form.html", context)
+
+def update_experience(request, experience_id):
+    experience = get_object_or_404(Experience, pk=experience_id)
+    form = ExperienceForm(request.POST or None, instance=experience)
+
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        messages.success(request, "Pengalaman berhasil diperbarui!")
+        return redirect("main:show_experience")
+
+    context = {
+        "username": "Taufiq",
+        "name": "Muhammad Taufiq Ramadhan",
+        "form": form,
+        "experience": experience,
+    }
+    return render(request, "experience_update_form.html", context)
+
+def update_interest(request, interest_id):
+    interest = get_object_or_404(Interest, pk=interest_id)
+    form = InterestForm(request.POST or None, instance=interest)
+
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        messages.success(request, "Minat berhasil diperbarui!")
+        return redirect("main:show_interest")
+
+    context = {
+        "username": "Taufiq",
+        "name": "Muhammad Taufiq Ramadhan",
+        "form": form,
+        "interest": interest,
+    }
+    return render(request, "interest_update_form.html", context)
+
+
+
+
