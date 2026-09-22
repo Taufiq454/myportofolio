@@ -10,11 +10,13 @@
                 <p class="section-kicker-interest">Hal-hal yang saya sukai</p>
                 <div class="interest-header">
                     <h1>Interest</h1>
-                    <a href="{% url 'main:create_interest' %}"
-                        class="button interest-add-button">
-                            <span aria-hidden="true">+</span>
-                            Tambah Minat Baru
+                    {% if user.is_superuser %}
+                        <a href="{% url 'main:create_interest' %}"
+                            class="button interest-add-button">
+                                <span aria-hidden="true">+</span>
+                                Tambah Minat Baru
                         </a>
+                    {% endif %}
                 </div>
                 <form method="get"
                       action="{% url 'main:show_interest' %}"
@@ -31,12 +33,14 @@
                     {% for interest in interest_list %}
                         <article class="interest-card">
                             <h2>{{ interest.nama }}</h2>
-                            <div class="interest-card-actions">
-                                <a href="{% url 'main:update_interest' interest.id %}" class="button button-interest-edit">
-                                    Edit
-                                </a>
-                                {% include "components/interest_delete_modal.html" with interest=interest %}
-                            </div>
+                            {% if user.is_superuser %}
+                                <div class="interest-card-actions">
+                                    <a href="{% url 'main:update_interest' interest.id %}" class="button button-interest-edit">
+                                        Edit
+                                    </a>
+                                    {% include "components/interest_delete_modal.html" with interest=interest %}
+                                </div>
+                            {% endif %}
                         </article>        
                     {% empty %}
                         {% if nama_query %}

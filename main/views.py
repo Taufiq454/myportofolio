@@ -1,7 +1,12 @@
+import datetime
 from django.contrib import messages
+from django.contrib.auth import login, logout
+from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.core import serializers
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.contrib.auth.decorators import login_required 
+from django.core.exceptions import PermissionDenied        
 
 # Create your views here.
 from main.forms import EducationForm, ExperienceForm, InterestForm
@@ -9,6 +14,7 @@ from main.models import Experience, Mahasiswa, Education, Interest
 
 
 def show_main(request):
+    last_login = request.COOKIES.get('last_login', 'Belum ada sesi login / Cookie tidak ditemukan')
     context = {
         "name": "Muhammad Taufiq Ramadhan",
         "username": "Taufiq",
@@ -17,6 +23,7 @@ def show_main(request):
         "bio": (
             "Computer Science student at Universitas Indonesia. Learning, building, and figuring things out along the way."
         ),
+        "last_login": last_login,
         "mahasiswa" : Mahasiswa.objects.all()
     }
     
@@ -85,8 +92,11 @@ def show_interest(request):
     }
     return render(request, "interest.html", context)
 
-
+@login_required(login_url="/login/")
 def create_education(request):
+    if not request.user.is_superuser:
+        raise PermissionDenied
+    
     form = EducationForm(request.POST or None)
 
     if request.method == "POST" and form.is_valid():
@@ -101,7 +111,11 @@ def create_education(request):
     }
     return render(request, "education_form.html", context)
 
+@login_required(login_url="/login/")
 def create_experience(request):
+    if not request.user.is_superuser:
+        raise PermissionDenied
+    
     form = ExperienceForm(request.POST or None)
     
     if request.method == "POST" and form.is_valid():
@@ -115,8 +129,12 @@ def create_experience(request):
         "form": form,
     }
     return render(request, "experience_form.html", context)
-    
+
+@login_required(login_url="/login/")    
 def create_interest(request):
+    if not request.user.is_superuser:
+        raise PermissionDenied
+    
     form = InterestForm(request.POST or None)
     
     if request.method == "POST" and form.is_valid():
@@ -161,7 +179,11 @@ def get_interest_json(request):
     interest_json = serializers.serialize("json", interest)
     return HttpResponse(interest_json, content_type="application/json")
 
+@login_required(login_url="/login/")
 def delete_education(request, education_id):
+    if not request.user.is_superuser:
+        raise PermissionDenied
+    
     education = get_object_or_404(Education, pk=education_id)
 
     if request.method == "POST":
@@ -171,7 +193,11 @@ def delete_education(request, education_id):
 
     return redirect("main:show_education")
 
+@login_required(login_url="/login/")
 def delete_experience(request, experience_id):
+    if not request.user.is_superuser:
+        raise PermissionDenied
+    
     experience = get_object_or_404(Experience, pk=experience_id)
     
     if request.method == "POST":
@@ -181,7 +207,11 @@ def delete_experience(request, experience_id):
     
     return redirect("main:show_experience")
 
+@login_required(login_url="/login/")
 def delete_interest(request, interest_id):
+    if not request.user.is_superuser:
+        raise PermissionDenied
+    
     interest = get_object_or_404(Interest, pk=interest_id)
     
     if request.method == "POST":
@@ -191,7 +221,11 @@ def delete_interest(request, interest_id):
     
     return redirect("main:show_interest")
 
+@login_required(login_url="/login/")
 def update_education(request, education_id):
+    if not request.user.is_superuser:
+        raise PermissionDenied
+    
     education = get_object_or_404(Education, pk=education_id)
     form = EducationForm(request.POST or None, instance=education)
 
@@ -208,7 +242,11 @@ def update_education(request, education_id):
     }
     return render(request, "education_update_form.html", context)
 
+@login_required(login_url="/login/")
 def update_experience(request, experience_id):
+    if not request.user.is_superuser:
+        raise PermissionDenied
+    
     experience = get_object_or_404(Experience, pk=experience_id)
     form = ExperienceForm(request.POST or None, instance=experience)
 
@@ -225,7 +263,11 @@ def update_experience(request, experience_id):
     }
     return render(request, "experience_update_form.html", context)
 
+@login_required(login_url="/login/")
 def update_interest(request, interest_id):
+    if not request.user.is_superuser:
+        raise PermissionDenied
+    
     interest = get_object_or_404(Interest, pk=interest_id)
     form = InterestForm(request.POST or None, instance=interest)
 
@@ -241,6 +283,46 @@ def update_interest(request, interest_id):
         "interest": interest,
     }
     return render(request, "interest_update_form.html", context)
+
+def register(request):
+    form = UserCreationForm(request.POST or None)
+
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        messages.success(request, "Akun berhasil dibuat. Silakan login.")
+        return redirect("main:login")
+
+    context = {
+        "username": "Taufiq",
+        "name": "Muhammad Taufiq Ramadhan",
+        "form": form,
+    }
+    return render(request, "register.html", context)
+
+def login_user(request):
+    form = AuthenticationForm(request, data=request.POST or None)
+
+    if request.method == "POST" and form.is_valid():
+        user = form.get_user()
+        login(request, user)
+        response = redirect("main:show_main")
+        response.set_cookie('last_login', datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+        return response
+
+    context = {
+        "username": "Taufiq",
+        "name": "Muhammad Taufiq Ramadhan",
+        "form": form,
+    }
+    return render(request, "login.html", context)
+
+def logout_user(request):
+    logout(request)
+    response = redirect("main:show_main")
+    response.delete_cookie('last_login')
+    return response
+
+
 
 
 

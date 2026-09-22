@@ -10,11 +10,13 @@
                 <p class="section-kicker-education">Riwayat pendidikan saya</p>
                 <div class="education-header">
                     <h1>Education</h1>
-                    <a href="{% url 'main:create_education' %}"
-                        class="button education-add-button">
-                            <span aria-hidden="true">+</span>
-                            Tambah Riwayat Pendidikan
+                    {% if user.is_superuser %}
+                        <a href="{% url 'main:create_education' %}"
+                            class="button education-add-button">
+                                <span aria-hidden="true">+</span>
+                                Tambah Riwayat Pendidikan
                         </a>
+                    {% endif %}
                 </div>
                 <form method="get"
                       action="{% url 'main:show_education' %}"
@@ -41,12 +43,14 @@
                                     {{ education.end_year }}                                    
                                 {% endif %}
                             </p>
-                            <div class="education-card-actions">
-                                <a href="{% url 'main:update_education' education.id %}" class="button button-education-edit">
-                                    Edit
-                                </a>
-                                {% include "components/education_delete_modal.html" with education=education %}
-                            </div>
+                            {% if user.is_superuser %}
+                                <div class="education-card-actions">                
+                                    <a href="{% url 'main:update_education' education.id %}" class="button button-education-edit">
+                                        Edit
+                                    </a>
+                                    {% include "components/education_delete_modal.html" with education=education %}
+                                </div>
+                            {% endif %}
                         </article>
                     {% empty %}
                         {% if institution_query %}
