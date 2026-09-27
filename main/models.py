@@ -1,5 +1,6 @@
 import uuid
 from django.db import models
+from django.contrib.auth.models import User 
 
 class Experience(models.Model):
     EXPERIENCE_CHOICES = [
@@ -16,14 +17,54 @@ class Experience(models.Model):
     description = models.TextField()
     category = models.CharField(max_length=20, choices=EXPERIENCE_CHOICES, default='full-time')
     thumbnail = models.URLField(blank=True, null=True)
-    started_at = models.DateTimeField(auto_now_add=True)
+    started_at = models.DateTimeField( auto_now_add=True)
     ended_at = models.DateTimeField(blank=True, null=True)
+    starred_by = models.ManyToManyField(
+        User, related_name="starred_experience", blank=True
+    )
     def __str__(self):
         return self.title
     
     @property
     def is_ongoing(self):
         return self.ended_at is None
+    
 
+class Mahasiswa(models.Model):
+    nama = models.CharField(max_length=100)
+    npm = models.CharField(max_length=11)
+
+    def __str__(self):
+        return self.nama
+
+
+class Education(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    institution = models.CharField(max_length=255)
+    degree = models.CharField(max_length=255)
+    study_program = models.CharField(max_length=255)
+    start_year = models.IntegerField()
+    end_year = models.IntegerField(null=True, blank=True)
+    starred_by = models.ManyToManyField(
+        User, related_name="starred_education", blank=True
+    )
+
+    def __str__(self):
+        return f"{self.degree} - {self.institution}"
+    
+    @property
+    def is_ongoing(self):
+        return self.end_year is None
+    
+class Interest(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    nama = models.CharField(max_length=100)
+    starred_by = models.ManyToManyField(
+        User, related_name="starred_interest", blank=True
+    )
+
+    
+    def __str__(self):
+        return self.nama
 # Create your models here.
 

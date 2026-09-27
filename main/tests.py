@@ -4,7 +4,7 @@ from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
 
-from main.models import Experience
+from main.models import Experience, Education
 
 
 class MainTest(TestCase):
@@ -14,6 +14,15 @@ class MainTest(TestCase):
             description="Membuat berkas-berkas",
             category="part-time",
         )
+            
+        self.education = Education.objects.create(
+            institution="Universitas Indonesia",
+            degree="S1",
+            study_program="Ilmu Komputer",
+            start_year=2025,
+            end_year=None
+        )
+        
 
     def test_main_url_is_accessible(self):
         response = self.client.get(reverse("main:show_main"))
@@ -58,3 +67,24 @@ class MainTest(TestCase):
         self.assertFalse(self.experience.is_ongoing)
         self.assertContains(response, "Selesai")
         self.assertNotContains(response, "Sedang berlangsung")
+        #------------------------------------------------------------------------------------- 
+
+    def test_education_model(self):
+        self.assertEqual(str(self.education), "S1 - Universitas Indonesia")
+        self.assertEqual(self.education.study_program, "Ilmu Komputer")
+        self.assertEqual(self.education.start_year, 2025)
+        self.assertIsNone(self.education.end_year)
+
+    def test_education_page(self):
+        response = self.client.get(reverse("main:show_education"))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "education.html")
+        self.assertContains(response, self.education.institution)
+        self.assertContains(response, self.education.degree)
+        self.assertContains(response, self.education.study_program)
+        self.assertContains(response, "Sekarang")  
+
+    def test_empty_education_page(self):
+        Education.objects.all().delete()
+        response = self.client.get(reverse("main:show_education"))
+        self.assertContains(response, "Belum ada riwayat pendidikan yang ditambahkan.")

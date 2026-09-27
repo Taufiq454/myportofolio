@@ -1,0 +1,44 @@
+<p class="interest-status">
+    <button type="button"
+            class="button button-danger"
+            popovertarget="delete-interest-{{ interest.id }}"
+            aria-label="Hapus {{ interest.nama }}"
+            title="Hapus minat">
+        Hapus Minat
+    </button>
+</p>
+
+<div id="delete-interest-{{ interest.id }}"
+     class="interest-delete-modal"
+     popover="auto"
+     role="dialog"
+     aria-modal="true"
+     aria-labelledby="delete-interest-title-{{ interest.id }}">
+    <button type="button"
+            class="interest-delete-modal__backdrop"
+            popovertarget="delete-interest-{{ interest.id }}"
+            popovertargetaction="hide"
+            aria-label="Tutup konfirmasi hapus"></button>
+    <div class="interest-delete-modal__content">
+        <button type="button"
+                class="interest-delete-modal__close"
+                popovertarget="delete-interest-{{ interest.id }}"
+                popovertargetaction="hide"
+                aria-label="Tutup konfirmasi hapus">x</button>
+        <h2 id="delete-interest-title-{{ interest.id }}">Hapus Minat?</h2>
+        <p>
+            Apakah Anda yakin ingin menghapus
+            <strong>{{ interest.nama }}</strong>?
+        </p>
+        <div class="interest-delete-modal__actions">
+            <button type="button"
+                    class="button button-secondary"
+                    popovertarget="delete-interest-{{ interest.id }}"
+                    popovertargetaction="hide">Batal</button>
+            <form method="post" action="{% url 'main:delete_interest' interest.id %}">
+                {% csrf_token %}
+                <button type="submit" class="button button-danger">Ya, Hapus</button>
+            </form>
+        </div>
+    </div>
+</div>

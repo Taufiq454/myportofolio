@@ -1,51 +1,62 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Taufiq- Portfolio</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/static/css/style.css">
-</head>
-<body>
-    <header class="site-header">
-        <div class="left-shape"></div>
-        <div class="left-shape2"></div>
-        <div class="right-shape"></div>
-        <div class="container">
-            <a href="#profile" class="brand">Taufiq</a>
-            <nav>
-                <a href="{% url 'landing_page' %}">Profile</a>
-                <a href="{% url 'skill_page' %}">Skill</a>
-                <a href="{% url 'project_page' %}">Project</a>
-                <a href="{% url 'interest_page' %}">Interest</a>
-            </nav>
-        </div>
-    </header>
+{% extends 'base.html' %}
+{% block meta %}
+    <title>Interest - {{ name }}</title>
+{% endblock meta %}
+{% block content %}
 
     <main>
-        <section class="interests" >
-            <!-- <div class="container hero-grid"> -->
-                <h1>My Interests</h1>
-                <div class="interest-grid">
-                    <div class="interest-card">Reading</div>
-                    <div class="interest-card">Music</div>
-                    <div class="interest-card">Fitness</div>
-                    <div class="interest-card">Martial Arts</div>
-                    <div class="interest-card">Gaming</div>
-                    <div class="interest-card">Rubik's Cube</div>
-                    <div class="interest-card">Hiking</div>
+        <section class="interest-section" id="interest">
+            <div class="container">
+                <p class="section-kicker-interest">Hal-hal yang saya sukai</p>
+                <div class="interest-header">
+                    <h1>Interest</h1>
+                    {% if user.is_superuser %}
+                        <a href="{% url 'main:create_interest' %}"
+                            class="button interest-add-button">
+                                <span aria-hidden="true">+</span>
+                                Tambah Minat Baru
+                        </a>
+                    {% endif %}
                 </div>
-            <!-- </div> -->
+                <form method="get"
+                      action="{% url 'main:show_interest' %}"
+                      class="interest-search">
+                    <input type="search"
+                           name="nama"
+                           value="{{ nama_query }}"
+                           placeholder="Cari berdasarkan nama minat"
+                           class="interest-search__input"
+                           aria-label="Cari berdasarkan nama minat">
+                    <button type="submit" class="button">Cari</button>
+                </form>
+                <div class="interest-grid">
+                    {% for interest in interest_list %}
+                        <article class="interest-card">
+                            <h2>{{ interest.nama }}</h2>                            
+                            <div class="interest-card-actions">
+                                {% include "components/interest_star.html" with interest=interest %}
+                                {% if user.is_superuser %}
+                                <a href="{% url 'main:update_interest' interest.id %}" class="button button-interest-edit">
+                                    Edit
+                                </a>
+                                {% include "components/interest_delete_modal.html" with interest=interest %}
+                                {% endif %}
+                            </div>                        
+                        </article>        
+                    {% empty %}
+                        {% if nama_query %}
+                            <p class="empty-state">
+                                Tidak ada minat dengan nama tersebut.
+                            </p>
+                        {% else %}
+                            <p class="empty-state">
+                                Belum menemukan minat.
+                            </p>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
         </section>
     </main>
 
-    <footer class="site-footer">
-        <div class="container">
-            <p>&copy; 2026 Muhammad Taufiq Ramadhan. Fakultas Ilmu Komputer, Universitas Indonesia.</p>
-        </div>
-    </footer>
-</body>
-</html>
+{% endblock content %}

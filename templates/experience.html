@@ -1,39 +1,34 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+{% extends 'base.html' %}
+{% block meta %}
     <title>Experience - {{ name }}</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/static/css/style.css">
-</head>
-<body>
-    <header class="site-header">
-        <div class="left-shape"></div>
-        <div class="left-shape2"></div>
-        <div class="right-shape"></div>
-        <!-- menambahkan hiasan di pojok kanan dan kiri atas -->
-        <div class="container">
-            <a href="{% url 'main:show_main' %}" class="brand">{{ name }}</a>
-            <nav>
-                <!-- <a href="{% url 'landing_page' %}">Profile</a> -->
-                <a href="{% url 'main:show_main' %}">Profile</a>
-                <a href="{% url 'skill_page' %}">Skill</a>
-                <a href="{% url 'project_page' %}">Project</a>
-                <a href="{% url 'interest_page' %}">Interest</a>
-                <a href="{% url 'main:show_experience' %}">Experience</a>
-
-            </nav>
-        </div>
-    </header>
+{% endblock meta %}
+{% block content %}
 
     <main>
         <section class="experience-section" id="experience">
             <div class="container">
                 <p class="section-kicker">Perjalanan saya sejauh ini</p>
-                <h1>Experience</h1>
+                <div class="experience-header">
+                    <h1>Experience</h1>
+                    {% if user.is_superuser %}
+                        <a href="{% url 'main:create_experience' %}"
+                            class="button experience-add-button">
+                                <span aria-hidden="true">+</span>
+                                Tambah Pengalaman Baru
+                        </a>
+                    {% endif %}
+                </div>
+                <form method="get"
+                      action="{% url 'main:show_experience' %}"
+                      class="experience-search">
+                    <input type="search"
+                           name="title"
+                           value="{{ title_query }}"
+                           placeholder="Cari berdasarkan nama pengalaman"
+                           class="experience-search__input"
+                           aria-label="Cari berdasarkan nama pengalaman">
+                    <button type="submit" class="button">Cari</button>
+                </form>
 
                 <div class="experience-grid">
                     {% for experience in experience_list %}
@@ -45,27 +40,35 @@
                             <p class="experience-description">
                                 {{ experience.description }}
                             </p>
-
                             {% if experience.is_ongoing %}
                                 <p class="experience-status">Sedang berlangsung</p>
                             {% else %}
                                 <p class="experience-status">Selesai</p>
                             {% endif %}
+                            {% if user.is_superuser %}
+                                <div class="experience-card-actions">
+                                    <a href="{% url 'main:update_experience' experience.id %}" class="button button-experience-edit">
+                                        Edit
+                                    </a>
+                                    {% include "components/project_star.html" with project=project %}
+                                    {% include "components/experience_delete_modal.html" with experience=experience %}
+                                </div>
+                            {% endif %}
                         </article>
                     {% empty %}
-                        <p class="empty-state">
+                        {% if institution_query %}
+                            <p class="empty-state">
+                                Tidak ada riwayat pengalaman dengan nama tersebut.
+                            </p>
+                        {% else %}
+                            <p class="empty-state">
                             Belum ada pengalaman yang ditambahkan.
-                        </p>
+                            </p>
+                        {% endif %}
                     {% endfor %}
                 </div>
             </div>
         </section>
     </main>
 
-    <footer class="site-footer">
-        <div class="container">
-            <p>&copy; 2026 {{ name }}. Fakultas Ilmu Komputer, Universitas Indonesia.</p>
-        </div>
-    </footer>
-</body>
-</html>
+{% endblock content %}
