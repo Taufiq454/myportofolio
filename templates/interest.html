@@ -32,15 +32,16 @@
                 <div class="interest-grid">
                     {% for interest in interest_list %}
                         <article class="interest-card">
-                            <h2>{{ interest.nama }}</h2>
-                            {% if user.is_superuser %}
-                                <div class="interest-card-actions">
-                                    <a href="{% url 'main:update_interest' interest.id %}" class="button button-interest-edit">
-                                        Edit
-                                    </a>
-                                    {% include "components/interest_delete_modal.html" with interest=interest %}
-                                </div>
-                            {% endif %}
+                            <h2>{{ interest.nama }}</h2>                            
+                            <div class="interest-card-actions">
+                                {% include "components/interest_star.html" with interest=interest %}
+                                {% if user.is_superuser %}
+                                <a href="{% url 'main:update_interest' interest.id %}" class="button button-interest-edit">
+                                    Edit
+                                </a>
+                                {% include "components/interest_delete_modal.html" with interest=interest %}
+                                {% endif %}
+                            </div>                        
                         </article>        
                     {% empty %}
                         {% if nama_query %}

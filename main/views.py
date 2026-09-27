@@ -156,7 +156,8 @@ def get_education_json(request):
     if institution_query:
         education = Education.objects.filter(institution__icontains=institution_query)
 
-    education_json = serializers.serialize("json", education)
+    education_json = serializers.serialize(
+        "json", education, use_natural_foreign_keys=True)
     return HttpResponse(education_json, content_type="application/json")
 
 def get_experience_json(request):
@@ -166,7 +167,8 @@ def get_experience_json(request):
     if title_query:
         experience = Experience.objects.filter(title_icontains=title_query)
         
-    experience_json = serializers.serialize("json", experience)
+    experience_json = serializers.serialize(
+        "json", experience, use_natural_foreign_keys=True)
     return HttpResponse(experience_json, content_type="application/json")
 
 def get_interest_json(request):
@@ -176,7 +178,8 @@ def get_interest_json(request):
     if nama_query:
         interest = Interest.objects.filter(nama_icontains=nama_query)
         
-    interest_json = serializers.serialize("json", interest)
+    interest_json = serializers.serialize(
+        "json", interest, use_natural_foreign_keys=True)
     return HttpResponse(interest_json, content_type="application/json")
 
 @login_required(login_url="/login/")
@@ -192,7 +195,7 @@ def delete_education(request, education_id):
         return redirect("main:show_education")
 
     return redirect("main:show_education")
-# tes
+
 @login_required(login_url="/login/")
 def delete_experience(request, experience_id):
     if not request.user.is_superuser:
@@ -321,6 +324,48 @@ def logout_user(request):
     response = redirect("main:show_main")
     response.delete_cookie('last_login')
     return response
+
+@login_required(login_url="/login/")
+def toggle_star_education(request, education_id):
+    education = get_object_or_404(Education, pk=education_id)
+
+    if request.method == "POST":
+        # Kalau akun ini sudah pernah memberi star, batalkan star-nya.
+        # Kalau belum, tambahkan star.
+        if request.user in education.starred_by.all():
+            education.starred_by.remove(request.user)
+        else:
+            education.starred_by.add(request.user)
+
+    return redirect("main:show_education")
+
+@login_required(login_url="/login/")
+def toggle_star_experience(request, experience_id):
+    experience = get_object_or_404(Experience, pk=experience_id)
+
+    if request.method == "POST":
+        # Kalau akun ini sudah pernah memberi star, batalkan star-nya.
+        # Kalau belum, tambahkan star.
+        if request.user in experience.starred_by.all():
+            experience.starred_by.remove(request.user)
+        else:
+            experience.starred_by.add(request.user)
+
+    return redirect("main:show_experience")
+
+@login_required(login_url="/login/")
+def toggle_star_interest(request, interest_id):
+    interest = get_object_or_404(Interest, pk=interest_id)
+
+    if request.method == "POST":
+        # Kalau akun ini sudah pernah memberi star, batalkan star-nya.
+        # Kalau belum, tambahkan star.
+        if request.user in interest.starred_by.all():
+            interest.starred_by.remove(request.user)
+        else:
+            interest.starred_by.add(request.user)
+
+    return redirect("main:show_interest")
 
 
 

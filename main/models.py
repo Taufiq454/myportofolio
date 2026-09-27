@@ -1,5 +1,6 @@
 import uuid
 from django.db import models
+from django.contrib.auth.models import User 
 
 class Experience(models.Model):
     EXPERIENCE_CHOICES = [
@@ -18,6 +19,9 @@ class Experience(models.Model):
     thumbnail = models.URLField(blank=True, null=True)
     started_at = models.DateTimeField( auto_now_add=True)
     ended_at = models.DateTimeField(blank=True, null=True)
+    starred_by = models.ManyToManyField(
+        User, related_name="starred_experience", blank=True
+    )
     def __str__(self):
         return self.title
     
@@ -41,6 +45,10 @@ class Education(models.Model):
     study_program = models.CharField(max_length=255)
     start_year = models.IntegerField()
     end_year = models.IntegerField(null=True, blank=True)
+    starred_by = models.ManyToManyField(
+        User, related_name="starred_education", blank=True
+    )
+
     def __str__(self):
         return f"{self.degree} - {self.institution}"
     
@@ -51,6 +59,10 @@ class Education(models.Model):
 class Interest(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     nama = models.CharField(max_length=100)
+    starred_by = models.ManyToManyField(
+        User, related_name="starred_interest", blank=True
+    )
+
     
     def __str__(self):
         return self.nama
