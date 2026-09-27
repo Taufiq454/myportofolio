@@ -12,6 +12,9 @@ from django.core.exceptions import PermissionDenied
 from main.forms import EducationForm, ExperienceForm, InterestForm
 from main.models import Experience, Mahasiswa, Education, Interest
 
+def is_editor(user):
+    return user.groups.filter(name="Editor").exists()
+
 
 def show_main(request):
     last_login = request.COOKIES.get('last_login', 'Belum ada sesi login / Cookie tidak ditemukan')
@@ -24,7 +27,8 @@ def show_main(request):
             "Computer Science student at Universitas Indonesia. Learning, building, and figuring things out along the way."
         ),
         "last_login": last_login,
-        "mahasiswa" : Mahasiswa.objects.all()
+        "mahasiswa" : Mahasiswa.objects.all(),
+        "is_editor" : is_editor(request.user),
     }
     
     return render(request, "index.html", context)
@@ -44,7 +48,8 @@ def show_experience(request):
         "username" : "Taufiq",
         "name": "Muhammad Taufiq Ramadhan",
         "experience_list": experience_list,
-        "title_query": title_query
+        "title_query": title_query,
+        "is_editor" : is_editor(request.user),
     }
     return render(request, "experience.html", context)
 
@@ -70,6 +75,7 @@ def show_education(request):
         "name": "Muhammad Taufiq Ramadhan",
         "education_list": education_list,
         "institution_query": institution_query,
+        "is_editor" : is_editor(request.user),
         
     }
     return render(request, "education.html", context)
@@ -88,7 +94,8 @@ def show_interest(request):
         "username" : "Taufiq",
         "name": "Muhammad Taufiq Ramadhan",
         "interest_list": interest_list,
-        "nama_query": nama_query
+        "nama_query": nama_query,
+        "is_editor" : is_editor(request.user),
     }
     return render(request, "interest.html", context)
 
@@ -226,7 +233,7 @@ def delete_interest(request, interest_id):
 
 @login_required(login_url="/login/")
 def update_education(request, education_id):
-    if not request.user.is_superuser:
+    if not (request.user.is_superuser or is_editor(request.user)):
         raise PermissionDenied
     
     education = get_object_or_404(Education, pk=education_id)
@@ -242,12 +249,13 @@ def update_education(request, education_id):
         "name": "Muhammad Taufiq Ramadhan",
         "form": form,
         "education": education,
+        "is_editor": is_editor(request.user),
     }
     return render(request, "education_update_form.html", context)
 
 @login_required(login_url="/login/")
 def update_experience(request, experience_id):
-    if not request.user.is_superuser:
+    if not (request.user.is_superuser or is_editor(request.user)):
         raise PermissionDenied
     
     experience = get_object_or_404(Experience, pk=experience_id)
@@ -263,12 +271,13 @@ def update_experience(request, experience_id):
         "name": "Muhammad Taufiq Ramadhan",
         "form": form,
         "experience": experience,
+        "is_editor": is_editor(request.user),
     }
     return render(request, "experience_update_form.html", context)
 
 @login_required(login_url="/login/")
 def update_interest(request, interest_id):
-    if not request.user.is_superuser:
+    if not (request.user.is_superuser or is_editor(request.user)):
         raise PermissionDenied
     
     interest = get_object_or_404(Interest, pk=interest_id)
@@ -284,6 +293,7 @@ def update_interest(request, interest_id):
         "name": "Muhammad Taufiq Ramadhan",
         "form": form,
         "interest": interest,
+        "is_editor": is_editor(request.user),
     }
     return render(request, "interest_update_form.html", context)
 

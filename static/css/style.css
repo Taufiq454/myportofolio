@@ -1279,3 +1279,19 @@ h1, .brand {
     background: rgba(255, 255, 255, 0.25);
     font-size: 0.8rem;
 }
+
+.star-form-experience {
+    display: inline;
+}
+
+.button-star-experience {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: var(--ink);
+    margin-top: 16px;
+}
+
+.button-star-experience.is-starred {
+    background: var(--accent-dark);
+}
