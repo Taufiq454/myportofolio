@@ -51,3 +51,7 @@ Saya juga tidak jadi menambahkan halaman project(menghapus), dan skill, dan memp
 
 ### AI Disclosure Tugas 3
 Saya menggunakan ChatGpt dan CoPilot untuk membantu mengetahui bagaimana implementasi method form experience pada bagian category dan DateTime juga bagaimana mengatur tampilan untuk category di menu add experience. Menggunakan AI untuk membantu membuat fungsi view untuk update dan menanyakan kesalahan pada educationForm
+
+
+### AI Disclosure Tugas 4
+Menyanyakan ke Copilot kenapa tombol edit tidak muncul setelah menambahkan editor(kurang context is_editor pada def show)
