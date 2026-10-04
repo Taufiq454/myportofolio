@@ -183,7 +183,7 @@ def get_experience_json(request):
     experiences = Experience.objects.prefetch_related('starred_by').all()
     
     if title_query:
-        experiences = Experience.objects.filter(title_icontains=title_query)
+        experiences = Experience.objects.filter(title__icontains=title_query)
         
     data =[]
     for experience in experiences:
@@ -216,7 +216,7 @@ def get_interest_json(request):
     interests = Interest.objects.prefetch_related('starred_by').all()
     
     if nama_query:
-        interests = Interest.objects.filter(nama_icontains=nama_query)
+        interests = Interest.objects.filter(nama__icontains=nama_query)
         
     data =[]
     for interest in interests:
