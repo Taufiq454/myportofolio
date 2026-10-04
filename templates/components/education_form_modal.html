@@ -8,19 +8,19 @@
             class="education-form-modal__backdrop"
             popovertarget="add-education-modal"
             popovertargetaction="hide"
-            aria-label="Tutup form tambah proyek"></button>
+            aria-label="Tutup form tambah riwayat pendidikan"></button>
 
     <div class="education-form-modal__content">
         <button type="button"
                 class="education-form-modal__close"
                 popovertarget="add-education-modal"
                 popovertargetaction="hide"
-                aria-label="Tutup form tambah proyek">×</button>
+                aria-label="Tutup form tambah Riwayat Pendidikan">×</button>
 
-        <h2 id="add-education-modal-title">Tambah Proyek Baru</h2>
+        <h2 id="add-education-modal-title">Tambah Riwayat Pendidikan Baru</h2>
         <form id="education-form"
               method="post"
-              action="{% url 'main:create_education' %}"
+              action="{% url 'main:create_education_ajax' %}"
               class="education-form">
             {% csrf_token %}
             {% for field in form %}
@@ -37,7 +37,7 @@
                         class="button button-secondary"
                         popovertarget="add-education-modal"
                         popovertargetaction="hide">Batal</button>
-                <button type="submit" class="button">Tambah Proyek</button>
+                <button type="submit" class="button">Tambah Riwayat Pendidikan</button>
             </div>
         </form>
     </div>

@@ -9,16 +9,16 @@
             <div class="container">
                 <p class="section-kicker-education">Riwayat pendidikan saya</p>
                 <div class="education-header">
-                    <button class="button button-secondary" onclick="showToast('Notifikasi Sistem', 'education berhasil dimuat dengan baik!', 'success')">
+                    <!-- <button class="button button-secondary" onclick="showToast('Notifikasi Sistem', 'education berhasil dimuat dengan baik!', 'success')">
                         Test Toast Notifikasi
-                    </button>
+                    </button> -->
                     <h1>Education</h1>
                     {% if user.is_superuser %}
                         <button type="button"
                                 class="button education-add-button"
                                 popovertarget="add-education-modal">
                             <span aria-hidden="true">+</span>
-                            Tambah Proyek
+                            Tambah Riwayat Pendidikan
                         </button>
                     {% endif %}
                 </div>              
@@ -36,6 +36,7 @@
                                 <button type="submit" class="button">Cari</button>
                             </form>
                                             <!-- Loading State -->
+                        
                             <div id="loading" class="empty-state hide">
                                 <p>Memuat educations...</p>
                             </div>
@@ -47,11 +48,12 @@
 
                             <!-- Empty State -->
                             <div id="empty" class="empty-state hide">
-                                <p>Belum ada proyek yang ditambahkan atau ditemukan.</p>
+                                <p>Belum ada riwayat pendidikan yang ditambahkan atau ditemukan.</p>
                             </div>
 
                             <!-- education Grid -->
-                            <div id="grid" class="experience-grid education-grid hide"></div>
+                            <div id="grid" class="education-grid education-grid hide"></div>
+                        
             </div>
         </section>
     </main>
@@ -65,6 +67,7 @@
     const IS_SUPERUSER = "{{ user.is_superuser|yesno:'true,false' }}" === "true";
     const IS_EDITOR = "{{ is_editor|yesno:'true,false' }}" === "true";
     const CAN_EDIT = IS_SUPERUSER || IS_EDITOR;
+    
     let educationAbortController;
     const SEARCH_DEBOUNCE_DELAY = 300;
     let searchDebounceTimer;
@@ -130,9 +133,9 @@
         //     : '';
 
 
-        const isStarredClass = escapeHtml(edu.is_starred) ? " is-starred" : "";
-        const starText = escapeHtml(edu.is_starred) ? "Unstar" : "Star";
-        const starTitle = escapeHtml(edu.star_count) > 0 
+        const isStarredClass = edu.is_starred ? " is-starred" : "";
+        const starText = edu.is_starred ? "Unstar" : "Star";
+        const starTitle = edu.star_count > 0 
             ? `Dibintangi oleh ${escapeHtml(edu.starred_by_names)}` 
             : "Jadilah yang pertama memberi star";
 

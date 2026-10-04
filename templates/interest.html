@@ -11,18 +11,26 @@
                 <div class="interest-header">
                     <h1>Interest</h1>
                     {% if user.is_superuser %}
-                        <a href="{% url 'main:create_interest' %}"
+                        <!-- <a href="{% url 'main:create_interest' %}"
                             class="button interest-add-button">
                                 <span aria-hidden="true">+</span>
                                 Tambah Minat Baru
-                        </a>
+                        </a> -->
+                        <button type="button"
+                                class="button interest-add-button"
+                                popovertarget="add-interest-modal">
+                            <span aria-hidden="true">+</span>
+                            Tambah Minat
+                        </button>
                     {% endif %}
                 </div>
                 <form method="get"
                       action="{% url 'main:show_interest' %}"
-                      class="interest-search">
+                      class="interest-search"
+                      id=""interest-search-form>
                     <input type="search"
                            name="nama"
+                           id="search-input"
                            value="{{ nama_query }}"
                            placeholder="Cari berdasarkan nama minat"
                            class="interest-search__input"
@@ -60,5 +68,8 @@
             </div>
         </section>
     </main>
+    {% if user.is_superuser %}
+        {% include "components/interest_form_modal.html %"}
+    {% endif %}
 
 {% endblock content %}

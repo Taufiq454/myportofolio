@@ -51,6 +51,7 @@ def show_experience(request):
         # "experience_list": experience_list,
         "title_query": title_query,
         "is_editor" : is_editor(request.user),
+        "form": ExperienceForm(),
     }
     return render(request, "experience.html", context)
 
@@ -83,6 +84,7 @@ def show_interest(request):
         # "interest_list": interest_list,
         "nama_query": nama_query,
         "is_editor" : is_editor(request.user),
+        "form": ExperienceForm(),
     }
     return render(request, "interest.html", context)
 
@@ -197,7 +199,7 @@ def get_experience_json(request):
                 "category": experience.category,
                 "thumbnail": experience.thumbnail,
                 "started_at": experience.started_at,
-                "ended+at": experience.ended_at,
+                "ended_at": experience.ended_at,
                 "star_count": starred_users.count(),
                 "is_starred": is_starred,
                 "starred_by_names": starred_by_names,
@@ -432,7 +434,7 @@ def toggle_star_interest(request, interest_id):
 def create_education_ajax(request):
     if not request.user.is_superuser:
         return JsonResponse(
-            {"message": "Hanya pemilik portofolio yang dapat menambahkan proyek."},
+            {"message": "Hanya pemilik portofolio yang dapat menambahkan riwayat pendidikan."},
             status=403,
         )
 
@@ -445,6 +447,44 @@ def create_education_ajax(request):
         )
 
     return JsonResponse({"errors": form.errors.get_json_data()}, status=400)
+
+@require_POST
+def create_experience_ajax(request):
+    if not request.user.is_superuser:
+        return JsonResponse(
+            {"message": "Hanya pemilik portofolio yang dapat menambahkan pengalaman."},
+            status=403,
+        )
+
+    form = ExperienceForm(request.POST)
+    if form.is_valid():
+        experience = form.save()
+        return JsonResponse(
+            {"message": "Pengalaman berhasil ditambahkan.", "pk": str(experience.id)},
+            status=201,
+        )
+
+    return JsonResponse({"errors": form.errors.get_json_data()}, status=400)
+
+@require_POST
+def create_interest_ajax(request):
+    if not request.user.is_superuser:
+        return JsonResponse(
+            {"message": "Hanya pemilik portofolio yang dapat menambahkan minat."},
+            status=403,
+        )
+
+    form = InterestForm(request.POST)
+    if form.is_valid():
+        interest = form.save()
+        return JsonResponse(
+            {"message": "Minat baru berhasil ditambahkan.", "pk": str(interest.id)},
+            status=201,
+        )
+
+    return JsonResponse({"errors": form.errors.get_json_data()}, status=400)
+
+
 
 
 
