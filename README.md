@@ -55,3 +55,17 @@ Saya menggunakan ChatGpt dan CoPilot untuk membantu mengetahui bagaimana impleme
 
 ### AI Disclosure Tugas 4
 Menyanyakan ke Copilot kenapa tombol edit tidak muncul setelah menambahkan editor(kurang context is_editor pada def show)
+
+
+### Tugas 5
+
+1. Debouncing adalah teknik untuk menunda sebuah fungsi hingga suatu jeda waktu berlalu tanpa event baru. Selama pengguna masih mengetik, timer sebelumnya dibatalkan dan dimulai lagi. Dengan demikian, browser hanya mengirim permintaan setelah pengguna berhenti mengetik selama sejenak. Teknik ini penting digunakan karena dapat mengurangi jumlah request ke server sehingga dapat mengurangi beban server, dan menghemat penggunaan jaringan.
+
+2. Await adalah keyword yang hanya bisa digunakan di dalam async function dan berfungsi untuk “menunggu” Promise selesai diproses sebelum melanjutkan ke baris kode berikutnya. Tanpa await, sebuah Promise akan tetap berjalan di belakang layar dan kode berikutnya akan langsung dieksekusi tanpa menunggu hasilnya.
+
+3. Cross-Site Scripting (XSS) adalah serangan ketika penyerang berhasil menyisipkan kode JavaScript miliknya ke dalam halaman web yang kemudian dijalankan di browser pengguna lain. Salah satu jenisnya adalah stored XSS, yaitu ketika kode berbahaya disimpan ke database (misalnya sebagai judul proyek) lalu ikut dijalankan setiap kali data tersebut ditampilkan. Template Django melakukan auto-escaping pada setiap { variabel }. Karakter seperti < dan > diubah menjadi &lt; dan &gt; sehingga browser menampilkannya sebagai teks biasa, bukan sebagai tag HTML. Saat kita pindah ke AJAX Tidak ada lagi Django yang melakukan escaping sehingga browser akan memperlakukan setiap tag HTML di dalam data sebagai kode sungguhan.
+
+
+### AI Disclosure Tugas 5
+
+Saya meminta bantuan AI, untuk mencek kesalahan pengetikan dan sebagainya, lalu juga minta bantuan AI dalam membuat implementasi javascript.

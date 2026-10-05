@@ -84,7 +84,7 @@ def show_interest(request):
         # "interest_list": interest_list,
         "nama_query": nama_query,
         "is_editor" : is_editor(request.user),
-        "form": ExperienceForm(),
+        "form": InterestForm(),
     }
     return render(request, "interest.html", context)
 
