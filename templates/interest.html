@@ -61,275 +61,175 @@
         {% include "components/interest_form_modal.html" %}
     {% endif %}
 
-    
+{% csrf_token %}
 <script>
-    // Konfigurasi
-    const BASE_INTEREST_ENDPOINT = "{% url 'main:get_interest_json' %}";
-    const IS_SUPERUSER = "{{ user.is_superuser|yesno:'true,false' }}" === "true";
-    const IS_EDITOR = "{{ is_editor|yesno:'true,false' }}" === "true";
-    const CAN_EDIT = IS_SUPERUSER || IS_EDITOR;
+const ZERO_ID = '00000000-0000-0000-0000-000000000000';
+const BASE_INTEREST_ENDPOINT = "{% url 'api:interest-list' %}";
+const DETAIL_INTEREST_ENDPOINT = "{% url 'api:interest-detail' '00000000-0000-0000-0000-000000000000' %}";
+const STAR_INTEREST_ENDPOINT = "{% url 'api:interest-star' '00000000-0000-0000-0000-000000000000' %}";
+const EDIT_INTEREST_URL = "{% url 'main:update_interest' '00000000-0000-0000-0000-000000000000' %}";
+const LOGIN_URL = "{% url 'main:login' %}";
+const IS_SUPERUSER = "{{ user.is_superuser|yesno:'true,false' }}" === "true";
+const IS_EDITOR = "{{ is_editor|yesno:'true,false' }}" === "true";
+const IS_AUTHENTICATED = "{{ user.is_authenticated|yesno:'true,false' }}" === "true";
+const CAN_EDIT = IS_SUPERUSER || IS_EDITOR;
 
-    let interestAbortController;
-    const SEARCH_DEBOUNCE_DELAY = 300;
-    let searchDebounceTimer;
+const loadingState = document.getElementById('loading');
+const errorState = document.getElementById('error');
+const emptyState = document.getElementById('empty');
+const gridContainer = document.getElementById('grid');
+const searchForm = document.getElementById('interest-search-form');
+const searchInput = document.getElementById('search-input');
+const interestForm = document.getElementById('interest-form');
+let interestAbortController;
+let searchDebounceTimer;
 
-    // Elemen DOM
-    const loadingState = document.getElementById('loading');
-    const errorState = document.getElementById('error');
-    const emptyState = document.getElementById('empty');
-    const gridContainer = document.getElementById('grid');
-    const searchForm = document.getElementById('interest-search-form');
-    const searchInput = document.getElementById('search-input');
-
-    // Menyembunyikan/menampilkan section halaman
-    function displayPageSection({
-        showLoading = false,
-        showError = false,
-        showEmpty = false,
-        showGrid = false
-    }) {
-        loadingState.classList.toggle('hide', !showLoading);
-        errorState.classList.toggle('hide', !showError);
-        emptyState.classList.toggle('hide', !showEmpty);
-        gridContainer.classList.toggle('hide', !showGrid);
-    }
-
-    // Escape karakter khusus HTML
-    function escapeHtml(value) {
-        return String(value ?? '')
-            .replaceAll('&', '&amp;')
-            .replaceAll('<', '&lt;')
-            .replaceAll('>', '&gt;')
-            .replaceAll('"', '&quot;')
-            .replaceAll("'", '&#39;');
-    }
-
-    // Membuat card Interest
-    function buildInterestCardElement(item) {
-        const interest = item.fields;
-        const interestId = item.pk;
-
-        const articleElement = document.createElement('article');
-        articleElement.className = 'interest-card';
-
-        // URL dengan ID asli
-        const dummyId = '00000000-0000-0000-0000-000000000000';
-
-        const starUrl =
-            "{% url 'main:toggle_star_interest' '00000000-0000-0000-0000-000000000000' %}"
-            .replace(dummyId, interestId);
-
-        const editUrl =
-            "{% url 'main:update_interest' '00000000-0000-0000-0000-000000000000' %}"
-            .replace(dummyId, interestId);
-
-        const deleteUrl =
-            "{% url 'main:delete_interest' '00000000-0000-0000-0000-000000000000' %}"
-            .replace(dummyId, interestId);
-
-        // Tombol Edit
-        const updateHtml = CAN_EDIT
-            ? `<a href="${editUrl}" class="button button-interest-edit">
-                    Edit
-               </a>`
-            : '';
-
-        // Tombol Delete
-        const deleteHtml = IS_SUPERUSER
-            ? `<form method="post"
-                    action="${deleteUrl}"
-                    style="display:inline;">
-                    {% csrf_token %}
-                    <button type="submit"
-                            class="button button-danger"
-                            onclick="return confirm('Yakin ingin menghapus minat ini?');">
-                        Hapus Minat
-                    </button>
-               </form>`
-            : '';
-
-        // Star
-        const isStarredClass = interest.is_starred ? ' is-starred' : '';
-        const starText = interest.is_starred ? 'Unstar' : 'Star';
-        const starTitle = interest.star_count > 0
-            ? `Dibintangi oleh ${escapeHtml(interest.starred_by_names)}`
-            : 'Jadilah yang pertama memberi star';
-
-        const starHtml = `
-            <form method="post"
-                  action="${starUrl}"
-                  class="star-form">
-                {% csrf_token %}
-                <button type="submit"
-                        class="button button-star${isStarredClass}"
-                        title="${starTitle}">
-                    <span aria-hidden="true">★</span>
-                    ${starText}
-                    <span class="star-count">
-                        ${escapeHtml(interest.star_count)}
-                    </span>
-                </button>
-            </form>
-        `;
-
-        // Isi card
-        const completeCardHtml = `
-            <h2>${escapeHtml(interest.nama)}</h2>
-
-            <div class="interest-card-actions">
-                ${starHtml}
-                ${updateHtml}
-                ${deleteHtml}
-            </div>
-        `;
-
-        articleElement.innerHTML = completeCardHtml;
-        return articleElement;
-    }
-
-    // Fetch data Interest
-    async function fetchInterest(searchQuery = '') {
-        if (interestAbortController) {
-            interestAbortController.abort();
-        }
-        interestAbortController = new AbortController();
-
-        try {
-            displayPageSection({
-                showLoading: true
-            });
-
-            const url = searchQuery
-                ? `${BASE_INTEREST_ENDPOINT}?nama=${encodeURIComponent(searchQuery)}`
-                : BASE_INTEREST_ENDPOINT;
-
-            const response = await fetch(url, {
-                headers: {
-                    'Accept': 'application/json'
-                },
-                signal: interestAbortController.signal
-            });
-
-            if (!response.ok) {
-                throw new Error('Failed to fetch interest data');
-            }
-
-            const interestData = await response.json();
-            if (interestData.length === 0) {
-                displayPageSection({
-                    showEmpty: true
-                });
-                emptyState.textContent = searchQuery
-                    ? 'Tidak ada minat dengan nama tersebut.'
-                    : 'Belum menemukan minat.';
-
-                return;
-            }
-            gridContainer.innerHTML = '';
-            interestData.forEach(item => {
-                gridContainer.appendChild(
-                    buildInterestCardElement(item)
-                );
-            });
-            displayPageSection({
-                showGrid: true
-            });
-        } catch (error) {
-            if (error.name === 'AbortError') {
-                return;
-            }
-            console.error('Error loading interest:', error);
-            displayPageSection({
-                showError: true
-            });
-        }
-    }
-
-    // Search Interest
-    function searchInterest() {
-        fetchInterest(searchInput.value.trim());
-    }
-
-    // Search saat mengetik
-    searchInput.addEventListener('input', function() {
-        clearTimeout(searchDebounceTimer);
-        searchDebounceTimer = setTimeout(function() {
-            searchInterest();
-        }, SEARCH_DEBOUNCE_DELAY);
-    });
-
-    // Search saat tombol Cari ditekan
-    searchForm.addEventListener('submit', function(event) {
-        event.preventDefault();
-
-        clearTimeout(searchDebounceTimer);
-        searchInterest();
-    });
-
-    function closeInterestModal() {
-    document.getElementById("add-interest-modal").hidePopover();
+function getCookie(name) {
+    const prefix = `${name}=`;
+    const cookie = document.cookie.split(';').map(value => value.trim())
+        .find(value => value.startsWith(prefix));
+    return cookie ? decodeURIComponent(cookie.slice(prefix.length)) : null;
 }
-    // Start application
-    const CREATE_INTEREST_ENDPOINT = "{% url 'main:create_interest_ajax' %}";
-    const interestForm = document.getElementById('interest-form');
 
-    // Ambil CSRF token dari cookie
-    function getCookie(name) {
-        let cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            const cookies = document.cookie.split(';');
-            for (let i = 0; i < cookies.length; i++) {
-                const cookie = cookies[i].trim();
-                if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
-                }
-            }
-        }
-        return cookieValue;
+function escapeHtml(value) {
+    return String(value ?? '').replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;').replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;').replaceAll("'", '&#39;');
+}
+
+function interestEndpoint(pattern, id) {
+    return pattern.replace(ZERO_ID, id);
+}
+
+function displayPageSection({ showLoading = false, showError = false,
+    showEmpty = false, showGrid = false }) {
+    loadingState.classList.toggle('hide', !showLoading);
+    errorState.classList.toggle('hide', !showError);
+    emptyState.classList.toggle('hide', !showEmpty);
+    gridContainer.classList.toggle('hide', !showGrid);
+}
+
+function buildInterestCardElement(interest) {
+    const article = document.createElement('article');
+    article.className = 'interest-card';
+    const edit = CAN_EDIT
+        ? `<a href="${escapeHtml(interestEndpoint(EDIT_INTEREST_URL, interest.id))}"
+            class="button button-interest-edit">Edit</a>` : '';
+    const starTitle = interest.star_count > 0
+        ? `Dibintangi oleh ${escapeHtml(interest.starred_by_names)}`
+        : 'Jadilah yang pertama memberi star';
+    const star = IS_AUTHENTICATED
+        ? `<button type="button" class="button button-star${interest.is_starred ? ' is-starred' : ''}"
+            data-action="star" data-id="${escapeHtml(interest.id)}" title="${starTitle}">
+            <span aria-hidden="true">★</span>
+            ${interest.is_starred ? 'Unstar' : 'Star'}
+            <span class="star-count">${escapeHtml(interest.star_count)}</span></button>`
+        : `<a href="${LOGIN_URL}" class="button">Login untuk star (${escapeHtml(interest.star_count)})</a>`;
+    const remove = IS_SUPERUSER
+        ? `<button type="button" class="button button-danger" data-action="delete"
+            data-id="${escapeHtml(interest.id)}">Hapus Minat</button>` : '';
+    article.innerHTML = `
+        <h2>${escapeHtml(interest.nama)}</h2>
+        <div class="interest-card-actions">${star}${edit}${remove}</div>`;
+    return article;
+}
+
+async function fetchInterest(searchQuery = '') {
+    if (interestAbortController) interestAbortController.abort();
+    interestAbortController = new AbortController();
+    try {
+        displayPageSection({ showLoading: true });
+        const url = new URL(BASE_INTEREST_ENDPOINT, window.location.origin);
+        if (searchQuery) url.searchParams.set('nama', searchQuery);
+        const response = await fetch(url, {
+            headers: { Accept: 'application/json' },
+            signal: interestAbortController.signal,
+        });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const interests = await response.json();
+        emptyState.textContent = searchQuery
+            ? 'Tidak ada minat dengan nama tersebut.'
+            : 'Belum menemukan minat.';
+        gridContainer.replaceChildren(...interests.map(buildInterestCardElement));
+        displayPageSection({ showGrid: interests.length > 0, showEmpty: interests.length === 0 });
+    } catch (error) {
+        if (error.name === 'AbortError') return;
+        console.error(error);
+        displayPageSection({ showError: true });
     }
+}
 
-    // Kirim data Interest ke server
-    async function addInterest(event) {
-        event.preventDefault();
+function apiErrorMessage(data, status) {
+    const messages = Object.values(data).flat().filter(value => typeof value === 'string');
+    return messages.join(' ') || `Permintaan gagal (HTTP ${status}).`;
+}
 
-        const submitButton = interestForm.querySelector('button[type="submit"]');
-        submitButton.disabled = true;
+async function writeInterest(url, method, payload) {
+    const response = await fetch(url, {
+        method,
+        headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken'),
+        },
+        body: payload === undefined ? undefined : JSON.stringify(payload),
+    });
+    if (response.status === 204) return null;
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(apiErrorMessage(data, response.status));
+    return data;
+}
 
-        try {
-            const response = await fetch(CREATE_INTEREST_ENDPOINT, {
-                method: 'POST',
-                headers: { 'X-CSRFToken': getCookie('csrftoken') },
-                body: new FormData(interestForm),
-            });
-            const result = await response.json().catch(() => ({}));
-
-            if (response.ok) {
-                interestForm.reset();
-                closeInterestModal(); // fungsi untuk menutup modal form
-                showToast('Berhasil', 'Minat baru berhasil ditambahkan!', 'success');
-                fetchInterest(searchInput.value.trim()); // refresh list interest
-            } else {
-                const errorMessages = result.errors
-                    ? Object.values(result.errors).flat().map(error => error.message)
-                    : [result.message || `Terjadi kesalahan (status ${response.status}).`];
-                showToast('Gagal menambahkan minat', errorMessages.join(' '), 'error');
-            }
-        } catch (error) {
-            console.error('Error adding interest:', error);
-            showToast('Gagal menambahkan minat', 'Tidak dapat terhubung ke server. Silakan coba lagi.', 'error');
-        } finally {
-            submitButton.disabled = false;
-        }
+async function addInterest(event) {
+    event.preventDefault();
+    const button = interestForm.querySelector('button[type="submit"]');
+    button.disabled = true;
+    try {
+        const fields = new FormData(interestForm);
+        const payload = { nama: fields.get('nama') };
+        await writeInterest(BASE_INTEREST_ENDPOINT, 'POST', payload);
+        interestForm.reset();
+        document.getElementById('add-interest-modal').hidePopover();
+        showToast('Berhasil', 'Minat baru berhasil ditambahkan!', 'success');
+        await fetchInterest(searchInput.value.trim());
+    } catch (error) {
+        showToast('Gagal menambahkan minat', error.message, 'error');
+    } finally {
+        button.disabled = false;
     }
+}
 
-    if (interestForm) {
-        interestForm.addEventListener('submit', addInterest);
+if (interestForm) interestForm.addEventListener('submit', addInterest);
+
+gridContainer.addEventListener('click', async function(event) {
+    const button = event.target.closest('button[data-action]');
+    if (!button || button.disabled) return;
+    const action = button.dataset.action;
+    if (action === 'delete' && !window.confirm('Yakin ingin menghapus minat ini?')) return;
+    button.disabled = true;
+    try {
+        const pattern = action === 'star' ? STAR_INTEREST_ENDPOINT : DETAIL_INTEREST_ENDPOINT;
+        await writeInterest(interestEndpoint(pattern, button.dataset.id),
+            action === 'star' ? 'POST' : 'DELETE');
+        showToast('Berhasil', action === 'star' ? 'Star diperbarui.' : 'Minat dihapus.', 'success');
+        await fetchInterest(searchInput.value.trim());
+    } catch (error) {
+        showToast('Permintaan gagal', error.message, 'error');
+    } finally {
+        button.disabled = false;
     }
+});
 
-
-    // Start application
+searchInput.addEventListener('input', function() {
+    clearTimeout(searchDebounceTimer);
+    searchDebounceTimer = setTimeout(() => fetchInterest(searchInput.value.trim()), 300);
+});
+searchForm.addEventListener('submit', function(event) {
+    event.preventDefault();
+    clearTimeout(searchDebounceTimer);
     fetchInterest(searchInput.value.trim());
-    </script>
+});
+fetchInterest(searchInput.value.trim());
+</script>
 
 {% endblock content %}

@@ -427,9 +427,6 @@ def toggle_star_interest(request, interest_id):
 
     return redirect("main:show_interest")
 
-
-...
-
 @require_POST
 def create_education_ajax(request):
     if not request.user.is_superuser:
