@@ -61,6 +61,9 @@
     {% if user.is_superuser %}
         {% include "components/experience_form_modal.html" %}
     {% endif %}
+    {% if user.is_superuser or is_editor %}
+        {% include "components/experience_edit_modal.html" %}
+    {% endif %}
 
 {% csrf_token %}
 <script>
@@ -114,8 +117,8 @@ function buildExperienceCardElement(experience) {
     const article = document.createElement('article');
     article.className = 'experience-card';
     const edit = CAN_EDIT
-        ? `<a href="${escapeHtml(experienceEndpoint(EDIT_EXPERIENCE_URL, experience.id))}"
-            class="button button-experience-edit">Edit</a>` : '';
+        ? `<button type="button" class="button button-experience-edit"
+        data-action="edit" data-id="${escapeHtml(experience.id)}">Edit</button>` : '';
     const starTitle = experience.star_count > 0
         ? `Dibintangi oleh ${escapeHtml(experience.starred_by_names)}`
         : 'Jadilah yang pertama memberi star';
@@ -151,6 +154,7 @@ async function fetchExperience(searchQuery = '') {
         });
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
         const experiences = await response.json();
+        experienceById = new Map(experiences.map(item => [item.id, item]));
         gridContainer.replaceChildren(...experiences.map(buildExperienceCardElement));
         displayPageSection({ showGrid: experiences.length > 0, showEmpty: experiences.length === 0 });
     } catch (error) {
@@ -218,6 +222,7 @@ gridContainer.addEventListener('click', async function(event) {
     const button = event.target.closest('button[data-action]');
     if (!button || button.disabled) return;
     const action = button.dataset.action;
+    if (action === 'edit') { openEditExperience(button.dataset.id); return; }
     if (action === 'delete' && !window.confirm('Yakin ingin menghapus pengalaman ini?')) return;
     button.disabled = true;
     try {
@@ -242,6 +247,53 @@ searchForm.addEventListener('submit', function(event) {
     clearTimeout(searchDebounceTimer);
     fetchExperience(searchInput.value.trim());
 });
+
+const editModal = document.getElementById('edit-experience-modal');
+const editForm = document.getElementById('experience-edit-form');
+let experienceById = new Map();
+
+function openEditExperience(id) {
+    const item = experienceById.get(id);
+    if (!item || !editForm) return;
+    for (const element of editForm.elements) {
+        if (!element.name || !(element.name in item)) continue;
+        let value = item[element.name] ?? '';
+        if (element.name === 'ended_at' && value) {
+            // API mengirim ISO; input datetime-local/date butuh potongan awalnya saja
+            value = value.slice(0, element.type === 'date' ? 10 : 16);
+        }
+        element.value = value;
+    }
+    editModal.showPopover();
+}
+
+async function saveExperience(event) {
+    event.preventDefault();
+    const button = editForm.querySelector('button[type="submit"]');
+    button.disabled = true;
+    try {
+        const fields = new FormData(editForm);
+        const payload = {};
+        for (const [name, value] of fields.entries()) {
+            if (name !== 'id') payload[name] = value;
+        }
+        if ('ended_at' in payload) {
+            const value = payload.ended_at;
+            payload.ended_at = !value ? null : (value.length === 10 ? `${value}T00:00:00` : value);
+        }
+        await writeExperience(
+            experienceEndpoint(DETAIL_EXPERIENCE_ENDPOINT, fields.get('id')), 'PATCH', payload);
+        editModal.hidePopover();
+        showToast('Berhasil', 'Pengalaman berhasil diperbarui!', 'success');
+        await fetchExperience(searchInput.value.trim());
+    } catch (error) {
+        showToast('Gagal memperbarui pengalaman', error.message, 'error');
+    } finally {
+        button.disabled = false;
+    }
+}
+
+if (editForm) editForm.addEventListener('submit', saveExperience);
 fetchExperience(searchInput.value.trim());
 </script>
 

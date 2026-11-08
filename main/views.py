@@ -52,6 +52,7 @@ def show_experience(request):
         "title_query": title_query,
         "is_editor" : is_editor(request.user),
         "form": ExperienceForm(),
+        "edit_form": ExperienceForm(auto_id="edit_%s"),
     }
     return render(request, "experience.html", context)
 
@@ -64,6 +65,8 @@ def show_education(request):
         "institution_query": institution_query,
         "is_editor" : is_editor(request.user),
         "form": EducationForm(),
+        "edit_form": EducationForm(auto_id="edit_%s"),
+
         
     }
     return render(request, "education.html", context)
@@ -85,6 +88,7 @@ def show_interest(request):
         "nama_query": nama_query,
         "is_editor" : is_editor(request.user),
         "form": InterestForm(),
+        "edit_form": InterestForm(auto_id="edit_%s"),
     }
     return render(request, "interest.html", context)
 

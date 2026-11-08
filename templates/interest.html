@@ -60,6 +60,9 @@
     {% if user.is_superuser %}
         {% include "components/interest_form_modal.html" %}
     {% endif %}
+    {% if user.is_superuser or is_editor %}
+        {% include "components/interest_edit_modal.html" %}
+    {% endif %}
 
 {% csrf_token %}
 <script>
@@ -113,8 +116,8 @@ function buildInterestCardElement(interest) {
     const article = document.createElement('article');
     article.className = 'interest-card';
     const edit = CAN_EDIT
-        ? `<a href="${escapeHtml(interestEndpoint(EDIT_INTEREST_URL, interest.id))}"
-            class="button button-interest-edit">Edit</a>` : '';
+        ? `<button type="button" class="button button-interest-edit"
+        data-action="edit" data-id="${escapeHtml(interest.id)}">Edit</button>` : '';
     const starTitle = interest.star_count > 0
         ? `Dibintangi oleh ${escapeHtml(interest.starred_by_names)}`
         : 'Jadilah yang pertama memberi star';
@@ -147,6 +150,7 @@ async function fetchInterest(searchQuery = '') {
         });
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
         const interests = await response.json();
+        interestById = new Map(interests.map(item => [item.id, item]));
         emptyState.textContent = searchQuery
             ? 'Tidak ada minat dengan nama tersebut.'
             : 'Belum menemukan minat.';
@@ -205,6 +209,7 @@ gridContainer.addEventListener('click', async function(event) {
     const button = event.target.closest('button[data-action]');
     if (!button || button.disabled) return;
     const action = button.dataset.action;
+    if (action === 'edit') { openEditInterest(button.dataset.id); return; }
     if (action === 'delete' && !window.confirm('Yakin ingin menghapus minat ini?')) return;
     button.disabled = true;
     try {
@@ -229,6 +234,41 @@ searchForm.addEventListener('submit', function(event) {
     clearTimeout(searchDebounceTimer);
     fetchInterest(searchInput.value.trim());
 });
+
+const editModal = document.getElementById('edit-interest-modal');
+const editForm = document.getElementById('interest-edit-form');
+let interestById = new Map();
+
+function openEditInterest(id) {
+    const item = interestById.get(id);
+    if (!item || !editForm) return;
+        for (const element of editForm.elements) {
+            if (element.name in item) element.value = item[element.name] ?? '';
+        }
+        editModal.showPopover();
+    }
+
+async function saveInterest(event) {
+    event.preventDefault();
+    const button = editForm.querySelector('button[type="submit"]');
+    button.disabled = true;
+    try {
+        const fields = new FormData(editForm);
+        await writeInterest(
+            interestEndpoint(DETAIL_INTEREST_ENDPOINT, fields.get('id')),
+            'PATCH', { nama: fields.get('nama') });
+        editModal.hidePopover();
+        showToast('Berhasil', 'Minat berhasil diperbarui!', 'success');
+        await fetchInterest(searchInput.value.trim());
+    } catch (error) {
+        showToast('Gagal memperbarui minat', error.message, 'error');
+    } finally {
+        button.disabled = false;
+    }
+}
+
+if (editForm) editForm.addEventListener('submit', saveInterest);
+
 fetchInterest(searchInput.value.trim());
 </script>
 
