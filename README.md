@@ -69,3 +69,17 @@ Menyanyakan ke Copilot kenapa tombol edit tidak muncul setelah menambahkan edito
 ### AI Disclosure Tugas 5
 
 Saya meminta bantuan AI, untuk mencek kesalahan pengetikan dan sebagainya, lalu juga minta bantuan AI dalam membuat implementasi javascript.
+
+### Tugas 6
+
+1. REST (Representational State Transfer) adalah gaya arsitektur untuk merancang web API, bukan library atau format data. Karena itu, API yang mengembalikan JSON belum tentu RESTful, karena API juga harus menggunakan URL, HTTP method, dan status code sesuai fungsinya. PUT digunakan untuk mengganti seluruh data, sedangkan PATCH hanya mengubah bagian tertentu. Contohnya, PUT untuk memperbarui seluruh profil dan PATCH untuk hanya mengganti alamat.
+
+2. Serializer bekerja dua arah. Pada GET, serializer mengubah objek model menjadi tipe data Python yang dapat dirender ke JSON (serialization). Pada POST/PATCH, serializer mengubah input menjadi data yang sudah divalidasi dan siap disimpan (deserialization). Hasil serializer belum berupa string JSON; renderer DRF yang mengubahnya menjadi isi response. Dibandingkan membuat dictionary secara manual dengan JsonResponse, serializer lebih praktis, mengurangi kode berulang, dan memudahkan pengelolaan serta validasi data.
+
+3. Autentikasi adalah proses memastikan siapa pengguna yang sedang mengakses API, sedangkan otorisasi menentukan apa saja yang boleh dilakukan pengguna tersebut. Permission harus diperiksa di server karena menyembunyikan tombol di template saja tidak cukup. Pengguna masih bisa mengirim request secara langsung melalui Postman atau browser.
+
+4. Dengan SessionAuthentication, browser otomatis mengirim cookie sesi pada setiap request ke situs itu, termasuk request yang dipicu halaman milik pihak lain. Tanpa token CSRF, server tidak bisa membedakan request yang sah dari yang palsu. force_authenticate mengisi request.user secara langsung dan melewati proses autentikasi, sehingga pemeriksaan CSRF tidak pernah berjalan. Tes yang memakainya tetap lulus meskipun perlindungan CSRF mati.
+
+### AI Disclosure Tugas 6
+
+Saya meminta bantuan AI untuk menuliskan kode pada bagian html, dan untuk test.
