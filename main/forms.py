@@ -1,6 +1,8 @@
 from django.forms import DateTimeInput, ModelForm, NumberInput, Select, TextInput, Textarea, URLInput
 
 from main.models import Education, Experience, Interest
+from django.core.exceptions import ValidationError
+from django.utils.html import strip_tags
 
 class EducationForm(ModelForm):
     class Meta:
@@ -55,6 +57,18 @@ class EducationForm(ModelForm):
                 }
             ),
         }
+
+    def clean_institution(self):
+        institution = strip_tags(self.cleaned_data["institution"]).strip()
+        if not institution:
+            raise ValidationError("Nama institusi tidak boleh hanya berisi tag HTML.")
+        return institution
+
+    def clean_study_program(self):
+        return strip_tags(self.cleaned_data["study_program"]).strip()
+
+    def clean_degree(self):
+        return strip_tags(self.cleaned_data["degree"]).strip()
         
 class ExperienceForm(ModelForm):
     class Meta:

@@ -1,0 +1,38 @@
+<div id="edit-interest-modal"
+     class="interest-form-modal"
+     popover="auto"
+     role="dialog"
+     aria-modal="true"
+     aria-labelledby="edit-interest-modal-title">
+    <button type="button"
+            class="interest-form-modal__backdrop"
+            popovertarget="edit-interest-modal"
+            popovertargetaction="hide"
+            aria-label="Tutup form edit minat"></button>
+
+    <div class="interest-form-modal__content">
+        <button type="button"
+                class="interest-form-modal__close"
+                popovertarget="edit-interest-modal"
+                popovertargetaction="hide"
+                aria-label="Tutup form edit minat">×</button>
+
+        <h2 id="edit-interest-modal-title">Edit Minat</h2>
+        <form id="interest-edit-form" class="interest-form">
+            <input type="hidden" name="id">
+            {% for field in edit_form %}
+                <div class="form-group">
+                    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    {{ field }}
+                </div>
+            {% endfor %}
+            <div class="interest-form-modal__actions">
+                <button type="button"
+                        class="button button-secondary"
+                        popovertarget="edit-interest-modal"
+                        popovertargetaction="hide">Batal</button>
+                <button type="submit" class="button">Simpan Perubahan</button>
+            </div>
+        </form>
+    </div>
+</div>

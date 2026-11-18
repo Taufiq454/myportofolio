@@ -51,3 +51,35 @@ Saya juga tidak jadi menambahkan halaman project(menghapus), dan skill, dan memp
 
 ### AI Disclosure Tugas 3
 Saya menggunakan ChatGpt dan CoPilot untuk membantu mengetahui bagaimana implementasi method form experience pada bagian category dan DateTime juga bagaimana mengatur tampilan untuk category di menu add experience. Menggunakan AI untuk membantu membuat fungsi view untuk update dan menanyakan kesalahan pada educationForm
+
+
+### AI Disclosure Tugas 4
+Menyanyakan ke Copilot kenapa tombol edit tidak muncul setelah menambahkan editor(kurang context is_editor pada def show)
+
+
+### Tugas 5
+
+1. Debouncing adalah teknik untuk menunda sebuah fungsi hingga suatu jeda waktu berlalu tanpa event baru. Selama pengguna masih mengetik, timer sebelumnya dibatalkan dan dimulai lagi. Dengan demikian, browser hanya mengirim permintaan setelah pengguna berhenti mengetik selama sejenak. Teknik ini penting digunakan karena dapat mengurangi jumlah request ke server sehingga dapat mengurangi beban server, dan menghemat penggunaan jaringan.
+
+2. Await adalah keyword yang hanya bisa digunakan di dalam async function dan berfungsi untuk “menunggu” Promise selesai diproses sebelum melanjutkan ke baris kode berikutnya. Tanpa await, sebuah Promise akan tetap berjalan di belakang layar dan kode berikutnya akan langsung dieksekusi tanpa menunggu hasilnya.
+
+3. Cross-Site Scripting (XSS) adalah serangan ketika penyerang berhasil menyisipkan kode JavaScript miliknya ke dalam halaman web yang kemudian dijalankan di browser pengguna lain. Salah satu jenisnya adalah stored XSS, yaitu ketika kode berbahaya disimpan ke database (misalnya sebagai judul proyek) lalu ikut dijalankan setiap kali data tersebut ditampilkan. Template Django melakukan auto-escaping pada setiap { variabel }. Karakter seperti < dan > diubah menjadi &lt; dan &gt; sehingga browser menampilkannya sebagai teks biasa, bukan sebagai tag HTML. Saat kita pindah ke AJAX Tidak ada lagi Django yang melakukan escaping sehingga browser akan memperlakukan setiap tag HTML di dalam data sebagai kode sungguhan.
+
+
+### AI Disclosure Tugas 5
+
+Saya meminta bantuan AI, untuk mencek kesalahan pengetikan dan sebagainya, lalu juga minta bantuan AI dalam membuat implementasi javascript.
+
+### Tugas 6
+
+1. REST (Representational State Transfer) adalah gaya arsitektur untuk merancang web API, bukan library atau format data. Karena itu, API yang mengembalikan JSON belum tentu RESTful, karena API juga harus menggunakan URL, HTTP method, dan status code sesuai fungsinya. PUT digunakan untuk mengganti seluruh data, sedangkan PATCH hanya mengubah bagian tertentu. Contohnya, PUT untuk memperbarui seluruh profil dan PATCH untuk hanya mengganti alamat.
+
+2. Serializer bekerja dua arah. Pada GET, serializer mengubah objek model menjadi tipe data Python yang dapat dirender ke JSON (serialization). Pada POST/PATCH, serializer mengubah input menjadi data yang sudah divalidasi dan siap disimpan (deserialization). Hasil serializer belum berupa string JSON; renderer DRF yang mengubahnya menjadi isi response. Dibandingkan membuat dictionary secara manual dengan JsonResponse, serializer lebih praktis, mengurangi kode berulang, dan memudahkan pengelolaan serta validasi data.
+
+3. Autentikasi adalah proses memastikan siapa pengguna yang sedang mengakses API, sedangkan otorisasi menentukan apa saja yang boleh dilakukan pengguna tersebut. Permission harus diperiksa di server karena menyembunyikan tombol di template saja tidak cukup. Pengguna masih bisa mengirim request secara langsung melalui Postman atau browser.
+
+4. Dengan SessionAuthentication, browser otomatis mengirim cookie sesi pada setiap request ke situs itu, termasuk request yang dipicu halaman milik pihak lain. Tanpa token CSRF, server tidak bisa membedakan request yang sah dari yang palsu. force_authenticate mengisi request.user secara langsung dan melewati proses autentikasi, sehingga pemeriksaan CSRF tidak pernah berjalan. Tes yang memakainya tetap lulus meskipun perlindungan CSRF mati.
+
+### AI Disclosure Tugas 6
+
+Saya meminta bantuan AI untuk menuliskan kode pada bagian html, dan untuk test.

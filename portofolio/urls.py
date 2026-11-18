@@ -29,5 +29,8 @@ urlpatterns = [
     # path('', landing_page, name='landing_page'),
     path('skill/', skill_page, name='skill_page'),
     path('project/', project_page, name='project_page'),
-    path('interest/', interest_page, name='interest_page')
+    path('interest/', interest_page, name='interest_page'),
+    path("api/v1/", include("main.api_urls")),
+    path("api-auth/", include("rest_framework.urls")),
+
 ]

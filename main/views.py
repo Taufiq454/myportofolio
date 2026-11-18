@@ -3,14 +3,18 @@ from django.contrib import messages
 from django.contrib.auth import login, logout
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.core import serializers
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib.auth.decorators import login_required 
-from django.core.exceptions import PermissionDenied        
+from django.core.exceptions import PermissionDenied      
+from django.views.decorators.http import require_POST  
 
 # Create your views here.
 from main.forms import EducationForm, ExperienceForm, InterestForm
 from main.models import Experience, Mahasiswa, Education, Interest
+
+def is_editor(user):
+    return user.groups.filter(name="Editor").exists()
 
 
 def show_main(request):
@@ -24,71 +28,67 @@ def show_main(request):
             "Computer Science student at Universitas Indonesia. Learning, building, and figuring things out along the way."
         ),
         "last_login": last_login,
-        "mahasiswa" : Mahasiswa.objects.all()
+        "mahasiswa" : Mahasiswa.objects.all(),
+        "is_editor" : is_editor(request.user),
     }
     
     return render(request, "index.html", context)
 
 
 def show_experience(request):
-    json_response = get_experience_json(request)
+    # json_response = get_experience_json(request)
     
-    experiences = serializers.deserialize(
-        "json",
-        json_response.content.decode("utf-8"),
-    )
-    experience_list = [experience.object for experience in experiences]
+    # experiences = serializers.deserialize(
+    #     "json",
+    #     json_response.content.decode("utf-8"),
+    # )
+    # experience_list = [experience.object for experience in experiences]
     title_query = request.GET.get("title", "").strip()
     
     context = {
         "username" : "Taufiq",
         "name": "Muhammad Taufiq Ramadhan",
-        "experience_list": experience_list,
-        "title_query": title_query
+        # "experience_list": experience_list,
+        "title_query": title_query,
+        "is_editor" : is_editor(request.user),
+        "form": ExperienceForm(),
+        "edit_form": ExperienceForm(auto_id="edit_%s"),
     }
     return render(request, "experience.html", context)
 
 def show_education(request):
-    json_response = get_education_json(request)
-
-    educations = serializers.deserialize(
-        "json",
-        json_response.content.decode("utf-8"),
-    )
-    education_list = [education.object for education in educations]
     institution_query = request.GET.get("institution", "").strip()
-    
-    if institution_query:
-        education_list = [
-            edu for edu in education_list
-            if institution_query.lower() in edu.degree.lower()
-            or institution_query.lower() in edu.institution.lower()
-        ]
-    
     context = {
         "username" : "Taufiq",
         "name": "Muhammad Taufiq Ramadhan",
-        "education_list": education_list,
+        # "education_list": education_list,
         "institution_query": institution_query,
+        "is_editor" : is_editor(request.user),
+        "form": EducationForm(),
+        "edit_form": EducationForm(auto_id="edit_%s"),
+
         
     }
     return render(request, "education.html", context)
 
 def show_interest(request):
-    json_response = get_interest_json(request)
+    # json_response = get_interest_json(request)
     
-    interests = serializers.deserialize(
-        "json",
-        json_response.content.decode("utf-8"),
-    )
-    interest_list = [interest.object for interest in interests]
+    # interests = serializers.deserialize(
+    #     "json",
+    #     json_response.content.decode("utf-8"),
+    # )
+    # interest_list = [interest.object for interest in interests]
     nama_query = request.GET.get("nama", "").strip()
     
     context = {
         "username" : "Taufiq",
         "name": "Muhammad Taufiq Ramadhan",
-        "interest_list": interest_list,
-        "nama_query": nama_query
+        # "interest_list": interest_list,
+        "nama_query": nama_query,
+        "is_editor" : is_editor(request.user),
+        "form": InterestForm(),
+        "edit_form": InterestForm(auto_id="edit_%s"),
     }
     return render(request, "interest.html", context)
 
@@ -151,36 +151,97 @@ def create_interest(request):
 
 def get_education_json(request):
     institution_query = request.GET.get("institution", "").strip()
-    education = Education.objects.all()
+    educations = Education.objects.prefetch_related('starred_by').all()
 
     if institution_query:
-        education = Education.objects.filter(institution__icontains=institution_query)
+        educations = Education.objects.filter(institution__icontains=institution_query)
+        
+    data =[]
+    for education in educations:
+        starred_users = education.starred_by.all()
+        is_starred = request.user in starred_users if request.user.is_authenticated else False
+        starred_by_names = ", ".join([u.username for u in starred_users])
+        
+        data.append({
+            "pk": str(education.id),
+            "fields": {
+                "id": education.id,
+                "institution": education.institution,
+                "degree": education.degree,
+                "study_program": education.study_program,
+                "start_year": education.start_year,
+                "end_year": education.end_year,
+                "star_count": starred_users.count(),
+                "is_starred": is_starred,
+                "starred_by_names": starred_by_names,
+            }
+        })
 
-    education_json = serializers.serialize(
-        "json", education, use_natural_foreign_keys=True)
-    return HttpResponse(education_json, content_type="application/json")
+    # education_json = serializers.serialize(
+    #     "json", education, use_natural_foreign_keys=True)
+    # return HttpResponse(education_json, content_type="application/json")
+    return JsonResponse(data, safe=False)
 
 def get_experience_json(request):
     title_query = request.GET.get("title", "").strip()
-    experience = Experience.objects.all()
+    experiences = Experience.objects.prefetch_related('starred_by').all()
     
     if title_query:
-        experience = Experience.objects.filter(title_icontains=title_query)
+        experiences = Experience.objects.filter(title__icontains=title_query)
         
-    experience_json = serializers.serialize(
-        "json", experience, use_natural_foreign_keys=True)
-    return HttpResponse(experience_json, content_type="application/json")
+    data =[]
+    for experience in experiences:
+        starred_users = experience.starred_by.all()
+        is_starred = request.user in starred_users if request.user.is_authenticated else False
+        starred_by_names = ", ".join([u.username for u in starred_users])
+        
+        data.append({
+            "pk": str(experience.id),
+            "fields": {
+                "title": experience.title,
+                "description": experience.description,
+                "category": experience.category,
+                "thumbnail": experience.thumbnail,
+                "started_at": experience.started_at,
+                "ended_at": experience.ended_at,
+                "star_count": starred_users.count(),
+                "is_starred": is_starred,
+                "starred_by_names": starred_by_names,
+            }
+        })        
+        
+    # experience_json = serializers.serialize(
+    #     "json", experience, use_natural_foreign_keys=True)
+    # return HttpResponse(experience_json, content_type="application/json")
+    return JsonResponse(data, safe=False)
 
 def get_interest_json(request):
     nama_query = request.GET.get("nama", "").strip()
-    interest = Interest.objects.all()
+    interests = Interest.objects.prefetch_related('starred_by').all()
     
     if nama_query:
-        interest = Interest.objects.filter(nama_icontains=nama_query)
+        interests = Interest.objects.filter(nama__icontains=nama_query)
         
-    interest_json = serializers.serialize(
-        "json", interest, use_natural_foreign_keys=True)
-    return HttpResponse(interest_json, content_type="application/json")
+    data =[]
+    for interest in interests:
+        starred_users = interest.starred_by.all()
+        is_starred = request.user in starred_users if request.user.is_authenticated else False
+        starred_by_names = ", ".join([u.username for u in starred_users])
+        
+        data.append({
+            "pk": str(interest.id),
+            "fields": {
+                "nama": interest.nama,
+                "star_count": starred_users.count(),
+                "is_starred": is_starred,
+                "starred_by_names": starred_by_names,
+            }
+        })
+        
+    # interest_json = serializers.serialize(
+    #     "json", interest, use_natural_foreign_keys=True)
+    # return HttpResponse(interest_json, content_type="application/json")
+    return JsonResponse(data, safe=False)
 
 @login_required(login_url="/login/")
 def delete_education(request, education_id):
@@ -226,7 +287,7 @@ def delete_interest(request, interest_id):
 
 @login_required(login_url="/login/")
 def update_education(request, education_id):
-    if not request.user.is_superuser:
+    if not (request.user.is_superuser or is_editor(request.user)):
         raise PermissionDenied
     
     education = get_object_or_404(Education, pk=education_id)
@@ -242,12 +303,13 @@ def update_education(request, education_id):
         "name": "Muhammad Taufiq Ramadhan",
         "form": form,
         "education": education,
+        "is_editor": is_editor(request.user),
     }
     return render(request, "education_update_form.html", context)
 
 @login_required(login_url="/login/")
 def update_experience(request, experience_id):
-    if not request.user.is_superuser:
+    if not (request.user.is_superuser or is_editor(request.user)):
         raise PermissionDenied
     
     experience = get_object_or_404(Experience, pk=experience_id)
@@ -263,12 +325,13 @@ def update_experience(request, experience_id):
         "name": "Muhammad Taufiq Ramadhan",
         "form": form,
         "experience": experience,
+        "is_editor": is_editor(request.user),
     }
     return render(request, "experience_update_form.html", context)
 
 @login_required(login_url="/login/")
 def update_interest(request, interest_id):
-    if not request.user.is_superuser:
+    if not (request.user.is_superuser or is_editor(request.user)):
         raise PermissionDenied
     
     interest = get_object_or_404(Interest, pk=interest_id)
@@ -284,6 +347,7 @@ def update_interest(request, interest_id):
         "name": "Muhammad Taufiq Ramadhan",
         "form": form,
         "interest": interest,
+        "is_editor": is_editor(request.user),
     }
     return render(request, "interest_update_form.html", context)
 
@@ -366,6 +430,62 @@ def toggle_star_interest(request, interest_id):
             interest.starred_by.add(request.user)
 
     return redirect("main:show_interest")
+
+@require_POST
+def create_education_ajax(request):
+    if not request.user.is_superuser:
+        return JsonResponse(
+            {"message": "Hanya pemilik portofolio yang dapat menambahkan riwayat pendidikan."},
+            status=403,
+        )
+
+    form = EducationForm(request.POST)
+    if form.is_valid():
+        education = form.save()
+        return JsonResponse(
+            {"message": "Riwayat pendidikan berhasil ditambahkan.", "pk": str(education.id)},
+            status=201,
+        )
+
+    return JsonResponse({"errors": form.errors.get_json_data()}, status=400)
+
+@require_POST
+def create_experience_ajax(request):
+    if not request.user.is_superuser:
+        return JsonResponse(
+            {"message": "Hanya pemilik portofolio yang dapat menambahkan pengalaman."},
+            status=403,
+        )
+
+    form = ExperienceForm(request.POST)
+    if form.is_valid():
+        experience = form.save()
+        return JsonResponse(
+            {"message": "Pengalaman berhasil ditambahkan.", "pk": str(experience.id)},
+            status=201,
+        )
+
+    return JsonResponse({"errors": form.errors.get_json_data()}, status=400)
+
+@require_POST
+def create_interest_ajax(request):
+    if not request.user.is_superuser:
+        return JsonResponse(
+            {"message": "Hanya pemilik portofolio yang dapat menambahkan minat."},
+            status=403,
+        )
+
+    form = InterestForm(request.POST)
+    if form.is_valid():
+        interest = form.save()
+        return JsonResponse(
+            {"message": "Minat baru berhasil ditambahkan.", "pk": str(interest.id)},
+            status=201,
+        )
+
+    return JsonResponse({"errors": form.errors.get_json_data()}, status=400)
+
+
 
 
 
